@@ -12,7 +12,7 @@ from tools import INSTRUCTION, convert_currency, get_events, get_weather
 
 root_agent = LlmAgent(
     name="trip_concierge",
-    model=os.environ.get("MODEL", "gemini-3.1-flash-lite"),
+    model=os.environ.get("MODEL", "gemini-3.8-flash"),
     instruction=INSTRUCTION,
     tools=[get_weather, get_events, convert_currency],
 )

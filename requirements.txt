@@ -3,6 +3,7 @@ google-genai>=2.19,<3
 langgraph==1.2.14
 langchain-core==1.6.9
 langchain-google-vertexai==3.2.4
+langgraph-checkpoint>=2
 openinference-instrumentation-google-adk==1.0.4
 openinference-instrumentation-langchain==0.1.79
 opentelemetry-sdk>=1.42

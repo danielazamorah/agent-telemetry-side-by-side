@@ -8,6 +8,9 @@
 Writes traces/<agent>__<question>.json with:
     spans   one object per span: name, ids, parent, start/end, duration, attributes
     events  OpenTelemetry log records emitted during the run (where GenAI puts the words)
+    session the framework's own record of the conversation (ADK session events,
+            LangGraph checkpoint), which is NOT telemetry: it is what the agent
+            reads back to continue the conversation
 
 Nothing leaves your machine except the model calls: the exporters write to memory.
 """
@@ -55,6 +58,9 @@ def setup_otel(service_name: str) -> TracerProvider:
     return provider
 
 
+SESSION = {}
+
+
 async def run_adk(question: str) -> str:
     from google.adk.runners import InMemoryRunner
     from google.genai import types
@@ -71,6 +77,13 @@ async def run_adk(question: str) -> str:
     ):
         if event.is_final_response() and event.content and event.content.parts:
             answer = "".join(p.text or "" for p in event.content.parts)
+    # ADK's session: every event (user message, function calls, function responses,
+    # final answer) plus state, as stored by the SessionService.
+    stored = await runner.session_service.get_session(
+        app_name="trip_concierge", user_id="ana", session_id=session.id
+    )
+    SESSION.update({"framework": "adk", "kind": "ADK Session (SessionService)",
+                    "data": stored.model_dump(mode="json", exclude_none=True)})
     await runner.close()
     return answer.strip()
 
@@ -78,10 +91,16 @@ async def run_adk(question: str) -> str:
 async def run_langgraph(question: str) -> str:
     from langgraph_agent import agent
 
-    state = await agent.ainvoke(
-        {"messages": [("user", question)]},
-        config={"metadata": {"session_id": "session-1", "user_id": "ana"}},
-    )
+    config = {"configurable": {"thread_id": "session-1"}, "metadata": {"session_id": "session-1", "user_id": "ana"}}
+    state = await agent.ainvoke({"messages": [("user", question)]}, config=config)
+    # LangGraph's session: the checkpoint for this thread (graph state + metadata).
+    from langchain_core.messages import messages_to_dict
+
+    snap = await agent.aget_state(config)
+    SESSION.update({"framework": "langgraph", "kind": "LangGraph checkpoint (thread state)",
+                    "data": {"thread_id": "session-1", "next": list(snap.next), "metadata": snap.metadata,
+                             "created_at": snap.created_at,
+                             "values": {"messages": messages_to_dict(snap.values["messages"])}}})
     content = state["messages"][-1].content
     if isinstance(content, list):
         content = " ".join(p.get("text", "") if isinstance(p, dict) else str(p) for p in content)
@@ -146,10 +165,12 @@ def main() -> None:
     out = HERE / "traces" / f"{args.agent}__{args.question}.json"
     out.parent.mkdir(exist_ok=True)
     out.write_text(json.dumps(
-        {"agent": args.agent, "question": question, "answer": answer, "spans": spans, "events": events},
+        {"agent": args.agent, "model": os.environ.get("MODEL", "gemini-3.8-flash"), "question": question,
+         "answer": answer, "spans": spans, "events": events, "session": SESSION},
         indent=2, default=str,
     ))
-    print(f"{args.agent}: {len(spans)} spans, {len(events)} events -> {out.relative_to(HERE)}")
+    n_session = len(SESSION.get("data", {}).get("events", SESSION.get("data", {}).get("values", {}).get("messages", [])))
+    print(f"{args.agent}: {len(spans)} spans, {len(events)} events, {n_session} session items -> {out.relative_to(HERE)}")
     print(f"answer: {answer}")
 
 

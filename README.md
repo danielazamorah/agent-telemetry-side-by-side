@@ -1,10 +1,10 @@
 # Same agent, two telemetry dictionaries
 
-One tiny trip-concierge agent, written twice (Google ADK and LangGraph), asked the same question. Both write OpenTelemetry. This repo saves what each one writes as plain JSON so you can put them side by side and see exactly what is the same and what is different.
+One tiny trip-concierge agent, written twice (Google ADK and LangGraph), asked the same question on `gemini-3.8-flash`. Both write OpenTelemetry. This repo saves what each one writes as plain JSON, and ships a small browser app where you **drop any trace files** (yours or these) and see what is the same and what is different.
 
-**The answer in one line:** both produce the same tree of spans (ids, parents, timestamps). The differences are the **names of the attributes** (`gen_ai.*` vs `openinference.*` / `llm.*`) and **where the words go** (a separate, opt-in event vs on the span).
+**The answer in one line:** both produce the same tree of spans (ids, parents, timestamps). The differences are the **names of the attributes** (`gen_ai.*` vs `openinference.*` / `llm.*`), **where the words go** (a separate, opt-in event vs on the span), and a few **traps** (the same "output tokens" name means different things).
 
-![viewer](docs/viewer_full.jpg)
+![app](docs/app_top.jpg)
 
 ## Run it
 
@@ -19,75 +19,83 @@ export GOOGLE_CLOUD_LOCATION=global        # Gemini 3.x is served from the globa
 python capture.py adk                      # ADK, built-in OpenTelemetry
 python capture.py langgraph                # LangGraph + OpenInference instrumentor
 python capture.py adk-openinference        # bonus: the same ADK agent, OpenInference instrumentor
-python compare.py                          # prints the Rosetta table, writes viewer.html
+python build_app.py                        # app/index.html with the two samples embedded
+open app/index.html                        # or: python -m http.server -d app
 ```
 
-Add `--question serial` to `capture.py` and `compare.py` for the question where the second tool needs the first one's answer.
+Add `--question serial` to `capture.py` for the question where the second tool needs the first one's answer.
 
-Each run writes `traces/<agent>__<question>.json`: `spans` (name, ids, parent, start/end, duration, attributes) and `events` (OpenTelemetry log records). Nothing is sent anywhere except the model calls; the exporters write to memory.
+Each run writes `traces/<agent>__<question>.json` with three parts:
+- `spans`: the trace (name, ids, parent, start/end, duration, attributes)
+- `events`: OpenTelemetry log records (where ADK puts the words)
+- `session`: the framework's own record of the conversation (ADK session events, LangGraph checkpoint)
+
+Nothing is sent anywhere except the model calls: the exporters write to memory, and the app parses everything in your browser.
 
 | File | What it is |
 | :-- | :-- |
 | `tools.py` | the three tools both agents share (plain Python, no framework) |
 | `adk_agent/agent.py` | the ADK agent (also runs in `adk web .`) |
-| `langgraph_agent.py` | the LangGraph agent |
-| `capture.py` | runs one agent, saves its telemetry as JSON |
-| `compare.py` | puts two traces side by side, writes `viewer.html` |
+| `langgraph_agent.py` | the LangGraph agent, with a checkpointer so it has a session too |
+| `capture.py` | runs one agent, saves trace, events and session as JSON |
+| `app/template.html`, `build_app.py` | the drop-your-traces app (one static HTML file, no dependencies) |
 
-## 1. Here is the ADK agent, and its telemetry
+## The app
 
-ADK has OpenTelemetry built in. One question produces this tree (`traces/adk__parallel.json`):
+Drop JSON files on it, or press "Load the ADK vs LangGraph samples". It reads:
+- this repo's `capture.py` output
+- OTLP JSON (`resourceSpans`, `resourceLogs`), e.g. from an OpenTelemetry Collector file exporter
+- OpenTelemetry console / JSONL span dumps
+- BigQuery exports of Cloud Trace's `_AllSpans` table (JSON or JSONL), e.g. from an agent deployed to Agent Runtime
+- Cloud Trace API traces
+- ADK session JSON and LangGraph checkpoint state
+
+For each trace it shows: a summary card (framework, dictionary, model, tokens, tool calls, parallel or not), the span tree, one model call as raw JSON with the same facts in the same color, where the words are, a Rosetta table across all loaded traces, and the session next to the trace.
+
+## 1. The ADK agent and its telemetry
+
+ADK has OpenTelemetry built in (`traces/adk__parallel.json`):
 
 ```
 invocation
   invoke_agent trip_concierge
     call_llm
-      generate_content gemini-3.1-flash-lite     the model decides: two tools
-    execute_tool get_weather                     both tools start together
+      generate_content gemini-3.8-flash     the model decides: two tools
+    execute_tool get_weather                both tools start together
     execute_tool get_events
+    execute_tool (merged)                   ADK bookkeeping for the parallel calls
     call_llm
-      generate_content gemini-3.1-flash-lite     the model answers
+      generate_content gemini-3.8-flash     the model answers
 ```
 
-One model call, as JSON. Numbers only, no words:
+One model call: numbers, no words.
 
 ```json
 {
   "gen_ai.operation.name": "generate_content",
-  "gen_ai.request.model": "gemini-3.1-flash-lite",
-  "gen_ai.agent.name": "trip_concierge",
-  "gen_ai.conversation.id": "b54d2a4c-1559-422b-b317-99003fde3920",
+  "gen_ai.request.model": "gemini-3.8-flash",
+  "gen_ai.conversation.id": "05d81804-2739-48e3-9dd4-a68992d7263b",
   "gen_ai.usage.input_tokens": 276,
-  "gen_ai.usage.output_tokens": 34,
-  "gen_ai.response.finish_reasons": ["stop"]
+  "gen_ai.usage.output_tokens": 168,
+  "gen_ai.usage.reasoning.output_tokens": 134
 }
 ```
 
-The same thing in ADK's own dev UI (`adk web .`, then Traces, then click a span and the `{}` tab):
+The same in ADK's dev UI (`adk web .`, then Traces, click a span, `{}` tab):
 
 ![adk web](docs/adk_web_span_json.jpg)
 
-## 2. Here is the LangGraph agent, and its telemetry
+## 2. The LangGraph agent and its telemetry
 
-LangGraph has no OpenTelemetry of its own; the community OpenInference instrumentor adds it (`traces/langgraph__parallel.json`). Same story, more spans, because it traces every graph node and LangChain runnable:
-
-```
-LangGraph
-  agent > call_model > RunnableSequence > Prompt, ChatVertexAI      the model decides
-  should_continue
-  tools > get_weather                                               both tools start together
-  tools > get_events
-  agent > call_model > RunnableSequence > Prompt, ChatVertexAI      the model answers
-```
-
-The same model call, as JSON (trimmed):
+LangGraph has no OpenTelemetry of its own; the OpenInference instrumentor adds it (`traces/langgraph__parallel.json`). Same story, more spans, because it traces every graph node and LangChain runnable. The same model call:
 
 ```json
 {
   "openinference.span.kind": "LLM",
-  "llm.model_name": "gemini-3.1-flash-lite",
+  "llm.model_name": "gemini-3.8-flash",
   "llm.token_count.prompt": 218,
   "llm.token_count.completion": 34,
+  "llm.token_count.completion_details.reasoning": 114,
   "session.id": "session-1",
   "input.value": "{\"messages\": [[{\"lc\": 1, \"type\": \"constructor\", ...",
   "output.value": "{\"generations\": [[{\"text\": \"\", ..."
@@ -100,29 +108,42 @@ The same model call, as JSON (trimmed):
 | :-- | :-- | :-- |
 | what kind of step | `gen_ai.operation.name` = `generate_content` | `openinference.span.kind` = `LLM` |
 | which model | `gen_ai.request.model` | `llm.model_name` |
-| tokens in / out | `gen_ai.usage.input_tokens` / `output_tokens` | `llm.token_count.prompt` / `completion` |
+| tokens in | `gen_ai.usage.input_tokens` | `llm.token_count.prompt` |
+| tokens out | `gen_ai.usage.output_tokens` (**includes thinking**) | `llm.token_count.completion` (**visible answer only**) |
+| thinking tokens | `gen_ai.usage.reasoning.output_tokens` | `llm.token_count.completion_details.reasoning` |
 | which conversation | `gen_ai.conversation.id` | `session.id` |
 | what was said | `gen_ai.input.messages` / `output.messages`, **in a separate event**, only with `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=EVENT_ONLY` | `input.value` / `output.value`, **on the span**, on by default |
 
-Two things worth noticing in the real data:
-- **Tokens in: 276 vs 218 for the same question.** ADK adds its own system text to the prompt ("You are an agent. Your internal name is…"). Same question, different framework prompt, different bill. Telemetry is how you see that.
+What the real data shows:
+- **Same name, different meaning.** ADK's first model call reports 168 output tokens: 34 of answer plus 134 of thinking. LangGraph reports 34 output tokens and puts its 114 thinking tokens in a separate key. Add the two naively and your cost per agent is wrong; the app normalizes both.
+- **Tokens in: 276 vs 218 for the same question.** ADK adds its own system text to the prompt ("You are an agent. Your internal name is…").
 - **The framework does not decide the dictionary, the instrumentor does.** The same ADK agent with `GoogleADKInstrumentor()` writes OpenInference (`traces/adk-openinference__parallel.json`).
 
-## 4. Why two dictionaries exist
+## 4. Traces vs session data
+
+| | Trace (telemetry) | Session (application state) |
+| :-- | :-- | :-- |
+| answers | how did this request run? timing, model, tokens, tools, order, errors | what is this conversation? every message, tool call and result, plus state |
+| written by | OpenTelemetry instrumentation, for observability tools | the framework (ADK `SessionService`, LangGraph checkpointer), for the agent |
+| key | `trace_id` (one request) | session id / `thread_id` (one conversation) |
+| has timings | yes | no |
+| kept | sampled, for a retention period | as long as the app needs the conversation |
+
+Same run, both records: ADK's session has 6 items (user text, two tool calls, two tool results, the answer) and so does LangGraph's checkpoint. Even here the frameworks differ: ADK records tool results with role `user`, LangGraph with role `tool`.
+
+![app bottom](docs/app_bottom.jpg)
+
+## 5. Why two dictionaries exist
 
 | | OpenTelemetry GenAI conventions | OpenInference |
 | :-- | :-- | :-- |
 | who | the OpenTelemetry project (GenAI SIG), vendor neutral | Arize and the open-source community |
 | built for | any observability backend: Cloud Trace, Datadog, Grafana | LLM debugging and evaluation tools: Phoenix, Arize, eval pipelines |
-| style | `gen_ai.*`; numbers on spans, words as opt-in events (privacy first) | span kinds AGENT / LLM / TOOL / CHAIN / RETRIEVER; words on the span (everything in one place) |
+| style | `gen_ai.*`; numbers on spans, words as opt-in events (privacy first) | span kinds AGENT / LLM / TOOL / CHAIN / RETRIEVER; words on the span |
 | status | marked Development in the spec, names still move | stable, instrumentors for many frameworks |
 
-Same goal: make agent behavior observable without vendor lock-in. Different audience: operations people vs AI quality people. You don't have to pick one forever: pick what your tools read, or keep both and normalize them at rest (for example, a SQL view in BigQuery).
+Same goal (observable agents without vendor lock-in), different audience (operations vs AI quality). Pick what your tools read, or keep both and normalize them at rest, for example with a SQL view in BigQuery.
 
-## 5. Then, deployed
+## 6. Then, deployed
 
-The same ADK agent deployed to Agent Runtime writes the same spans to Cloud Trace, stamped with the deployment (`cloud.resource_id = …/reasoningEngines/<id>`, `cloud.platform = gcp.agent_engine`). The two questions show the two shapes:
-- **parallel**: two `execute_tool` bars start at the same moment; you wait for the longest one.
-- **serial**: `get_events`, then `convert_currency`; a staircase, you wait for the sum.
-
-With `EVENT_ONLY`, the words land in the agent's own log (`reasoning_engine_stdout`), one entry per model call, labeled `event.name = gen_ai.client.inference.operation.details`, linked to the span by trace id and span id.
+The same ADK agent deployed to Agent Runtime writes the same spans to Cloud Trace, stamped with the deployment (`cloud.resource_id = …/reasoningEngines/<id>`, `cloud.platform = gcp.agent_engine`). Export a trace from BigQuery (`_AllSpans`) and drop it in the app next to the local one. With `EVENT_ONLY`, the words land in the agent's own log (`reasoning_engine_stdout`), one entry per model call, labeled `event.name = gen_ai.client.inference.operation.details`, linked to the span by trace id and span id.

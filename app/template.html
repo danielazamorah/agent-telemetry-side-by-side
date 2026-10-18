@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent telemetry side by side</title>
+<style>
+:root{--t-ink:#1f1f1f;--t-muted:#5f6368;--t-line:#e3e6ea;--t-panel:#f6f8fa;--t-blue:#1a73e8;--t-code:#0f1720}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:var(--t-ink);font-family:"Google Sans",Inter,Roboto,Arial,sans-serif}
+main{max-width:1560px;margin:0 auto;padding:36px 36px 90px}
+h1{font-size:38px;font-weight:600;margin:0 0 6px}
+h2{font-size:24px;font-weight:600;margin:0 0 4px}
+.lead{font-size:17px;color:var(--t-muted);max-width:1050px;line-height:1.55;margin:0}
+.eyebrow{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--t-blue);font-weight:600;margin:44px 0 8px}
+.drop{margin-top:22px;border:2px dashed #c4c9d0;border-radius:18px;padding:26px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;background:#fbfcfd}
+.drop.over{border-color:var(--t-blue);background:#eef4fe}
+.drop b{font-size:17px}
+.btn{border:1px solid var(--t-line);background:#fff;border-radius:999px;padding:9px 16px;font:inherit;font-size:14px;cursor:pointer}
+.btn.primary{background:var(--t-blue);color:#fff;border-color:var(--t-blue)}
+.btn:hover{border-color:var(--t-blue)}
+.hint{font-size:13px;color:var(--t-muted);width:100%;line-height:1.5}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip{display:inline-flex;align-items:center;gap:8px;background:var(--t-panel);border:1px solid var(--t-line);border-radius:999px;padding:6px 8px 6px 14px;font-size:13px}
+.chip button{border:0;background:#e3e6ea;border-radius:50%;width:22px;height:22px;cursor:pointer}
+.err{color:#c5221f;font-size:14px;margin-top:10px;white-space:pre-wrap}
+.grid{display:grid;gap:22px;margin-top:14px}
+.card{background:var(--t-panel);border-radius:18px;padding:20px 22px;min-width:0}
+.card h3{margin:0;font-size:18px;word-break:break-all}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
+.pill{font-size:12px;border-radius:999px;padding:3px 10px;background:#fff;border:1px solid var(--t-line);color:#3c4043}
+.pill.genai{background:#e8f0fe;border-color:#c6dafc;color:#174ea6}
+.pill.oi{background:#fce8e6;border-color:#f6c7c3;color:#a50e0e}
+.pill.mixed{background:#fef7e0;border-color:#fde293;color:#7a5800}
+.stat{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.stat div{background:#fff;border-radius:12px;padding:10px 12px;border:1px solid var(--t-line)}
+.stat b{display:block;font-size:20px}.stat span{font-size:12px;color:var(--t-muted)}
+.trow{display:flex;align-items:center;height:26px}
+.tname{width:42%;font-family:"Roboto Mono",Menlo,monospace;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ttrack{flex:1;position:relative;height:14px}
+.tbar{position:absolute;top:2px;height:10px;border-radius:4px;min-width:3px}
+.tms{width:74px;text-align:right;font-size:11.5px;color:var(--t-muted)}
+.legend span{display:inline-block;margin-right:16px;font-size:13px;color:var(--t-muted)}
+.legend b{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.json{font-family:"Roboto Mono",Menlo,monospace;font-size:12.5px;line-height:1.55;background:var(--t-code);color:#e6edf3;border-radius:14px;padding:14px 16px;overflow:hidden}
+.jl{padding:1px 8px;border-left:4px solid transparent;word-break:break-all}
+.jk{color:#79c0ff}
+.note{font-size:13.5px;color:var(--t-muted);margin-top:8px;line-height:1.5}
+table{border-collapse:collapse;width:100%;font-size:14px;background:#fff;border-radius:14px;overflow:hidden}
+th{text-align:left;color:var(--t-muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em;padding:10px;border-bottom:2px solid var(--t-line)}
+td{padding:10px;border-bottom:1px solid var(--t-line);vertical-align:top}
+code{font-family:"Roboto Mono",Menlo,monospace;font-size:12.5px;background:#eef1f5;padding:2px 6px;border-radius:5px}
+.v{font-family:"Roboto Mono",Menlo,monospace;font-size:12px;color:#3c4043;margin-top:5px;word-break:break-all}
+.w{font-size:11.5px;color:#9aa0a6;margin-top:2px}
+.where{display:inline-block;font-size:12px;font-weight:600;border-radius:6px;padding:2px 8px}
+.where.span{background:#fce8e6;color:#a50e0e}.where.event{background:#e8f0fe;color:#174ea6}.where.none{background:#f1f3f4;color:#5f6368}
+.sess{font-size:13px}
+.si{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--t-line)}
+.si .r{width:86px;flex:none;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--t-muted)}
+.si .c{word-break:break-word}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.box{background:#fff;border:1px solid var(--t-line);border-radius:14px;padding:16px 18px}
+.box h4{margin:0 0 8px;font-size:16px}
+.box p{margin:4px 0;font-size:14px;line-height:1.5}
+.empty{color:var(--t-muted);font-size:15px;padding:24px;border:1px dashed var(--t-line);border-radius:14px;text-align:center}
+</style>
+</head>
+<body><main>
+<div class="eyebrow">Agent telemetry · side by side</div>
+<h1>Drop two traces. See what is the same and what is not.</h1>
+<p class="lead">Every agent framework here writes OpenTelemetry: a tree of spans with ids, parents and timestamps. What differs is the <b>dictionary of attribute names</b> (OpenTelemetry GenAI <code>gen_ai.*</code> vs OpenInference) and <b>where the words go</b>. Load any traces (and, optionally, the session data) and compare. Everything runs in your browser; nothing is uploaded anywhere.</p>
+
+<div class="drop" id="drop">
+  <div><b>Drop JSON files here</b> or <label class="btn primary" for="file">Choose files</label><input id="file" type="file" accept=".json,.jsonl,.ndjson,application/json" multiple hidden></div>
+  <button class="btn" id="samples">Load the ADK vs LangGraph samples</button>
+  <button class="btn" id="clear">Clear</button>
+  <div class="hint">Reads: this repo's <code>capture.py</code> output · OTLP JSON (<code>resourceSpans</code> / <code>resourceLogs</code>) · OpenTelemetry console or JSONL span dumps · BigQuery exports of <code>_AllSpans</code> (JSON or JSONL) · Cloud Trace API traces (<code>spans[].labels</code>) · ADK session JSON (<code>events[]</code>) · LangGraph checkpoint state (<code>values.messages</code>). Files with spans become a trace; a session file is attached to the trace with the same name prefix, or to the last trace.</div>
+</div>
+<div class="chips" id="chips"></div>
+<div class="err" id="err"></div>
+
+<div id="out"></div>
+
+<script id="samples-data" type="application/json">__SAMPLES__</script>
+<script>
+"use strict";
+const KIND_COLOR={AGENT:"#7c4dff",LLM:"#1a73e8",TOOL:"#1e8e3e",CHAIN:"#9aa0a6"};
+const FACTS=[
+  {id:"kind",label:"what kind of step",color:"#7c4dff",genai:["gen_ai.operation.name"],oi:["openinference.span.kind"]},
+  {id:"model",label:"which model",color:"#1a73e8",genai:["gen_ai.request.model","gen_ai.response.model"],oi:["llm.model_name"]},
+  {id:"tin",label:"tokens in",color:"#1e8e3e",genai:["gen_ai.usage.input_tokens","gen_ai.usage.prompt_tokens"],oi:["llm.token_count.prompt"]},
+  {id:"tout",label:"tokens out",color:"#1e8e3e",genai:["gen_ai.usage.output_tokens","gen_ai.usage.completion_tokens"],oi:["llm.token_count.completion"]},
+  {id:"think",label:"thinking tokens",color:"#1e8e3e",genai:["gen_ai.usage.reasoning.output_tokens"],oi:["llm.token_count.completion_details.reasoning"]},
+  {id:"conv",label:"which conversation",color:"#b06000",genai:["gen_ai.conversation.id","gcp.vertex.agent.session_id"],oi:["session.id"]},
+  {id:"user",label:"which user",color:"#b06000",genai:["user.id","enduser.id"],oi:["user.id"]},
+  {id:"in",label:"what went in",color:"#c5221f",genai:["gen_ai.input.messages","gcp.vertex.agent.llm_request"],oi:["input.value"]},
+  {id:"out",label:"what came out",color:"#c5221f",genai:["gen_ai.output.messages","gcp.vertex.agent.llm_response"],oi:["output.value"]},
+];
+const COLOR_OF={};FACTS.forEach(f=>[...f.genai,...f.oi].forEach(k=>COLOR_OF[k]=f.color));
+let TRACES=[];
+
+// ---------- helpers ----------
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const short=(v,n=110)=>{let s=typeof v==="string"?v:JSON.stringify(v);return s.length>n?s.slice(0,n-1)+"…":s};
+function otlpValue(v){if(v==null)return null;if("stringValue"in v)return v.stringValue;if("intValue"in v)return Number(v.intValue);if("doubleValue"in v)return v.doubleValue;if("boolValue"in v)return v.boolValue;if("arrayValue"in v)return (v.arrayValue.values||[]).map(otlpValue);if("kvlistValue"in v)return Object.fromEntries((v.kvlistValue.values||[]).map(x=>[x.key,otlpValue(x.value)]));return JSON.stringify(v)}
+function attrsFrom(a){if(!a)return{};if(typeof a==="string"){try{return JSON.parse(a)}catch(e){return{}}}if(Array.isArray(a))return Object.fromEntries(a.map(x=>[x.key,otlpValue(x.value)]));return a}
+function toMs(t){if(t==null||t==="")return null;if(typeof t==="number")return t>1e14?t/1e6:t>1e11?t:t*1000;const s=String(t);if(/^\d+$/.test(s)){const n=Number(s);return n>1e14?n/1e6:n>1e11?n:n*1000}const d=Date.parse(s);return isNaN(d)?null:d}
+function hexId(x,len){if(x==null||x==="")return null;let s=String(x).replace(/^0x/,"");if(/^\d+$/.test(s)&&s.length>len){try{s=BigInt(s).toString(16)}catch(e){}}return s.padStart(len,"0").slice(-len)}
+const isEmptyish=v=>v==null||v===""||v==="{}"||v==="[]"||v==="__REDACTED__";
+
+// ---------- parsers ----------
+function parseText(name,text){
+  text=text.trim();let docs=[];
+  try{docs=[JSON.parse(text)]}catch(e){
+    docs=text.split(/\n(?=\s*[\{\[])/).map(t=>t.trim()).filter(Boolean).map(t=>JSON.parse(t)); // JSONL or concatenated objects
+  }
+  const res={name,spans:[],events:[],session:null,meta:{}};
+  const pushSpan=s=>{if(s&&s.span_id)res.spans.push(s)};
+  for(const d of docs){
+    if(Array.isArray(d)){d.forEach(x=>ingest(x));continue}
+    ingest(d);
+  }
+  function ingest(d){
+    if(!d||typeof d!=="object")return;
+    // this repo's capture format
+    if(Array.isArray(d.spans)&&d.spans.length&&"start_time_ns"in d.spans[0]){
+      res.meta={agent:d.agent,question:d.question,answer:d.answer,model:d.model};
+      d.spans.forEach(s=>pushSpan({name:s.name,trace_id:s.trace_id,span_id:s.span_id,parent:s.parent_span_id,start:toMs(s.start_time_ns),end:toMs(s.end_time_ns),attrs:s.attributes||{},scope:s.instrumentation,resource:{}}));
+      (d.events||[]).forEach(e=>res.events.push({name:e.event_name,trace_id:e.trace_id,span_id:e.span_id,attrs:e.attributes||{}}));
+      if(d.session&&d.session.data)res.session=d.session;
+      return;
+    }
+    // OTLP JSON
+    if(d.resourceSpans){d.resourceSpans.forEach(rs=>{const resA=attrsFrom(rs.resource&&rs.resource.attributes);(rs.scopeSpans||rs.instrumentationLibrarySpans||[]).forEach(ss=>{const scope=(ss.scope||ss.instrumentationLibrary||{}).name;(ss.spans||[]).forEach(s=>pushSpan({name:s.name,trace_id:hexB64(s.traceId,32),span_id:hexB64(s.spanId,16),parent:s.parentSpanId?hexB64(s.parentSpanId,16):null,start:toMs(s.startTimeUnixNano),end:toMs(s.endTimeUnixNano),attrs:attrsFrom(s.attributes),scope,resource:resA}))})});}
+    if(d.resourceLogs){d.resourceLogs.forEach(rl=>(rl.scopeLogs||[]).forEach(sl=>(sl.logRecords||[]).forEach(r=>{const a=attrsFrom(r.attributes);res.events.push({name:r.eventName||a["event.name"]||"log",trace_id:r.traceId?hexB64(r.traceId,32):null,span_id:r.spanId?hexB64(r.spanId,16):null,attrs:a})})));}
+    if(d.resourceSpans||d.resourceLogs)return;
+    // Cloud Trace API v1 trace
+    if(d.traceId&&Array.isArray(d.spans)){d.spans.forEach(s=>pushSpan({name:s.name,trace_id:hexId(d.traceId,32),span_id:hexId(s.spanId,16),parent:s.parentSpanId?hexId(s.parentSpanId,16):null,start:toMs(s.startTime),end:toMs(s.endTime),attrs:s.labels||{},scope:(s.labels||{})["otel.scope.name"],resource:{}}));return}
+    // ADK session
+    if(Array.isArray(d.events)&&(d.appName||d.app_name||d.userId||d.user_id)){res.session={framework:"adk",kind:"ADK Session (SessionService)",data:d};return}
+    // LangGraph checkpoint
+    if(d.values&&Array.isArray(d.values.messages)){res.session={framework:"langgraph",kind:"LangGraph checkpoint (thread state)",data:d};return}
+    if(d.session&&d.session.data){res.session=d.session}
+    // single span: OTel console (to_json), BigQuery _AllSpans row, or simple
+    if(d.name&&(d.context||d.span_id||d.spanId)){
+      const ctx=d.context||{};
+      const ra=d.resource&&(d.resource.attributes!==undefined?attrsFrom(d.resource.attributes):{});
+      pushSpan({name:d.name,trace_id:hexId(ctx.trace_id||d.trace_id||d.traceId,32),span_id:hexId(ctx.span_id||d.span_id||d.spanId,16),
+        parent:hexId(d.parent_id||d.parent_span_id||d.parentSpanId,16),start:toMs(d.start_time_ns||d.start_time_unix_nano||d.start_time||d.startTime),
+        end:toMs(d.end_time_ns||d.end_time_unix_nano||d.end_time||d.endTime)??(d.duration_nano!=null?toMs(d.start_time_ns||d.start_time_unix_nano||d.start_time||d.startTime)+Number(d.duration_nano)/1e6:null),attrs:attrsFrom(d.attributes||d.labels),
+        scope:(d.instrumentation_scope&&d.instrumentation_scope.name)||(d.instrumentationScope&&d.instrumentationScope.name)||d.instrumentation||null,resource:ra||{}});
+      return;
+    }
+    // OTel log record (console / BigQuery _AllLogs style)
+    if(d.event_name||(d.labels&&d.labels["event.name"])||(d.attributes&&d.attributes["event.name"])){
+      const a=Object.assign({},attrsFrom(d.attributes),attrsFrom(d.labels));
+      res.events.push({name:d.event_name||a["event.name"],trace_id:hexId(String(d.trace_id||d.trace||"").split("/").pop(),32),span_id:hexId(d.span_id||d.spanId,16),attrs:a});
+    }
+  }
+  return res;
+}
+function hexB64(x,len){if(!x)return null;if(/^[0-9a-f]+$/i.test(x)&&x.length===len)return x.toLowerCase();try{const b=atob(x);return [...b].map(c=>c.charCodeAt(0).toString(16).padStart(2,"0")).join("").padStart(len,"0")}catch(e){return hexId(x,len)}}
+
+// ---------- analysis ----------
+function kind(s){const a=s.attrs;if(/\(merged\)/.test(s.name||""))return "CHAIN";const oi=a["openinference.span.kind"];if(oi)return String(oi).toUpperCase();const op=a["gen_ai.operation.name"];
+  if(op){if(/agent|workflow/.test(op))return "AGENT";if(/tool/.test(op))return "TOOL";if(/chat|generate|completion|embed/.test(op))return "LLM"}
+  const n=s.name||"";if(/^invoke_agent|^invoke_workflow|^agent_run/.test(n))return "AGENT";if(/^execute_tool/.test(n)&&!/merged/.test(n))return "TOOL";if(/^call_llm|^generate_content|^chat /.test(n))return "LLM";return "CHAIN"}
+function dialect(attrs){const ks=Object.keys(attrs);const g=ks.some(k=>k.startsWith("gen_ai.")),o=ks.some(k=>k==="openinference.span.kind"||k.startsWith("llm.")||k==="input.value");return g&&o?"mixed":g?"genai":o?"oi":"none"}
+function analyze(t){
+  const spans=t.spans.filter(s=>s.start!=null&&s.end!=null).sort((a,b)=>a.start-b.start);
+  const ids=new Set(spans.map(s=>s.span_id));
+  // keep the trace with the most spans if the file has several
+  const byTrace={};spans.forEach(s=>(byTrace[s.trace_id]=byTrace[s.trace_id]||[]).push(s));
+  const traces=Object.entries(byTrace).sort((a,b)=>b[1].length-a[1].length);
+  const main=traces.length?traces[0][1]:[];
+  const mainIds=new Set(main.map(s=>s.span_id));
+  main.forEach(s=>{s.kind=kind(s);s.dialect=dialect(s.attrs)});
+  const children={};main.forEach(s=>{if(s.parent&&mainIds.has(s.parent))(children[s.parent]=children[s.parent]||[]).push(s)});
+  const llmLeaves=main.filter(s=>s.kind==="LLM"&&!(children[s.span_id]||[]).some(c=>c.kind==="LLM"));
+  const num=(s,keys)=>{for(const k of keys){const v=s.attrs[k];if(v!=null&&!isNaN(Number(v)))return Number(v)}return 0};
+  const tin=llmLeaves.reduce((a,s)=>a+num(s,["gen_ai.usage.input_tokens","llm.token_count.prompt","gen_ai.usage.prompt_tokens"]),0);
+  // Output tokens mean different things: gen_ai.usage.output_tokens already includes thinking
+  // (ADK), llm.token_count.completion is visible text only (OpenInference). Normalize both
+  // to "everything the model generated" and keep thinking separately.
+  const think=llmLeaves.reduce((a,s)=>a+num(s,["gen_ai.usage.reasoning.output_tokens","llm.token_count.completion_details.reasoning"]),0);
+  const tout=llmLeaves.reduce((a,s)=>{const g=s.attrs["gen_ai.usage.output_tokens"];if(g!=null)return a+Number(g);
+    return a+num(s,["llm.token_count.completion","gen_ai.usage.completion_tokens"])+num(s,["llm.token_count.completion_details.reasoning"])},0);
+  const counts={};main.forEach(s=>counts[s.dialect]=(counts[s.dialect]||0)+1);
+  const d=(counts.genai||0)&&(counts.oi||0)||counts.mixed?"mixed":(counts.genai?"genai":counts.oi?"oi":"none");
+  const scopes=[...new Set(main.map(s=>s.scope).filter(Boolean))];
+  const t0=main.length?Math.min(...main.map(s=>s.start)):0,t1=main.length?Math.max(...main.map(s=>s.end)):0;
+  const model=(llmLeaves.map(s=>s.attrs["gen_ai.request.model"]||s.attrs["llm.model_name"]||s.attrs["gen_ai.response.model"]).find(Boolean))||t.meta.model||"";
+  const tools=main.filter(s=>s.kind==="TOOL");
+  const overlap=tools.length>1&&tools.some((a,i)=>tools.some((b,j)=>i<j&&a.start<b.end&&b.start<a.end));
+  const res=main.find(s=>Object.keys(s.resource||{}).length);
+  return Object.assign(t,{main,children,mainIds,llmLeaves,tin,tout,think,dialectAll:d,scopes,t0,t1,model,tools,overlap,otherTraces:traces.length-1,resource:res?res.resource:{}});
+}
+function framework(t){const s=t.scopes.join(" ");if(/google_adk/.test(s))return "ADK + OpenInference";if(/gcp\.vertex\.agent/.test(s))return "ADK";if(/langchain/.test(s))return "LangChain / LangGraph";if(/google_genai/.test(s))return "google-genai SDK";if(t.meta.agent)return t.meta.agent;return s||"unknown"}
+function firstModelSpan(t){return t.llmLeaves[0]||t.main.find(s=>s.kind==="LLM")}
+function findFact(t,f,ms){
+  const keys=[...f.oi,...f.genai];
+  const look=(attrs)=>{for(const k of keys){if(k in attrs&&!isEmptyish(attrs[k]))return {k,v:attrs[k]}}return null};
+  if(ms){const r=look(ms.attrs);if(r)return {...r,where:"span",on:ms.name};
+    const ev=t.events.find(e=>e.span_id===ms.span_id);if(ev){const r2=look(ev.attrs);if(r2)return {...r2,where:"event",on:ev.name}}
+    for(const k of keys){if(ms.attrs[k]==="__REDACTED__"||ms.attrs[k]==="{}")return {k,v:ms.attrs[k],where:"redacted",on:ms.name}}}
+  for(const s of t.main){const r=look(s.attrs);if(r)return {...r,where:"span",on:s.name}}
+  for(const e of t.events){const r=look(e.attrs);if(r)return {...r,where:"event",on:e.name}}
+  return {k:null,v:null,where:"none"};
+}
+
+// ---------- session ----------
+function sessionItems(sess){
+  if(!sess)return[];const d=sess.data||{};const out=[];
+  if(Array.isArray(d.events)){d.events.forEach(e=>{const c=e.content||{};const role=c.role||e.author||"";(c.parts||[]).forEach(p=>{
+    if(p.text)out.push({role,type:"text",text:p.text});
+    if(p.function_call||p.functionCall){const fc=p.function_call||p.functionCall;out.push({role,type:"tool call",text:`${fc.name}(${JSON.stringify(fc.args||{})})`})}
+    if(p.function_response||p.functionResponse){const fr=p.function_response||p.functionResponse;out.push({role,type:"tool result",text:`${fr.name} → ${short(fr.response,140)}`})}
+  })});return out}
+  const msgs=(d.values&&d.values.messages)||[];msgs.forEach(m=>{const k=m.data||m.kwargs||m;const type=m.type||k.type;let content=k.content;
+    if(Array.isArray(content))content=content.map(x=>typeof x==="string"?x:(x.text||"")).join(" ");
+    const role={human:"user",ai:"model",tool:"tool",system:"system"}[type]||type;
+    if(type==="ai"&&(k.tool_calls||[]).length)(k.tool_calls||[]).forEach(tc=>out.push({role,type:"tool call",text:`${tc.name}(${JSON.stringify(tc.args||{})})`}));
+    if(content)out.push({role,type:type==="tool"?"tool result":"text",text:type==="tool"?`${k.name} → ${short(content,140)}`:content});
+  });return out;
+}
+
+// ---------- render ----------
+function renderTree(t){
+  const total=Math.max(t.t1-t.t0,1);const depth={};
+  const rows=t.main.map(s=>{let d=0,p=s;const byId=Object.fromEntries(t.main.map(x=>[x.span_id,x]));while(p.parent&&byId[p.parent]&&d<20){p=byId[p.parent];d++}
+    const left=(s.start-t.t0)/total*100,w=Math.max((s.end-s.start)/total*100,.5);
+    return `<div class="trow"><div class="tname" style="padding-left:${6+d*14}px" title="${esc(s.name)}">${esc(s.name)}</div><div class="ttrack"><div class="tbar" style="left:${left.toFixed(2)}%;width:${w.toFixed(2)}%;background:${KIND_COLOR[s.kind]}"></div></div><div class="tms">${(s.end-s.start).toLocaleString(undefined,{maximumFractionDigits:0})} ms</div></div>`}).join("");
+  return rows||'<div class="note">No spans with timestamps.</div>';
+}
+function renderJSON(attrs,limit=105,max=26){
+  const keys=Object.keys(attrs).filter(k=>!/^llm\.(tools|input_messages|output_messages)\./.test(k));
+  const hidden=Object.keys(attrs).length-keys.length;
+  const lines=keys.slice(0,max).map(k=>{const c=COLOR_OF[k];const st=c?` style="background:${c}22;border-left-color:${c}"`:"";return `<div class="jl"${st}><span class="jk">"${esc(k)}"</span>: ${esc(short(attrs[k],limit))}</div>`}).join("");
+  const more=(keys.length>max?`<div class="jl">… ${keys.length-max} more keys</div>`:"")+(hidden?`<div class="jl" style="color:#8b949e">+ ${hidden} flattened message / tool-schema keys (llm.input_messages.N.*, llm.output_messages.N.*, llm.tools.N.*)</div>`:"");
+  return `<div class="json">{${lines}${more}}</div>`;
+}
+const DLABEL={genai:"OpenTelemetry GenAI (gen_ai.*)",oi:"OpenInference",mixed:"both dictionaries",none:"no GenAI attributes"};
+function render(){
+  const out=document.getElementById("out");
+  const chips=document.getElementById("chips");
+  chips.innerHTML=TRACES.map((t,i)=>`<span class="chip">${esc(t.name)} · ${t.main.length} spans${t.session?" · session":""}<button title="remove" onclick="TRACES.splice(${i},1);render()">×</button></span>`).join("");
+  if(!TRACES.length){out.innerHTML='<div class="eyebrow">Nothing loaded yet</div><div class="empty">Drop two trace files above, or load the samples.</div>';return}
+  const cols=`grid-template-columns:repeat(${Math.min(TRACES.length,3)},minmax(0,1fr))`;
+  const legend=`<div class="legend">${Object.entries(KIND_COLOR).map(([k,c])=>`<span><b style="background:${c}"></b>${k}</span>`).join("")}</div>`;
+  let h="";
+  // 1 overview
+  h+=`<div class="eyebrow">1 · What you loaded</div><h2>One card per trace</h2><div class="grid" style="${cols}">`+TRACES.map(t=>`
+    <div class="card"><h3>${esc(t.name)}</h3>
+      <div class="meta"><span class="pill">${esc(framework(t))}</span><span class="pill ${t.dialectAll}">${DLABEL[t.dialectAll]}</span>${t.model?`<span class="pill">${esc(t.model)}</span>`:""}${t.resource["cloud.platform"]?`<span class="pill">${esc(t.resource["cloud.platform"])}</span>`:""}</div>
+      ${t.meta.question?`<div class="note">“${esc(t.meta.question)}”</div>`:""}
+      <div class="stat"><div><b>${t.main.length}</b><span>spans</span></div><div><b>${Math.round(t.t1-t.t0).toLocaleString()} ms</b><span>end to end</span></div><div><b>${t.tin}/${t.tout}</b><span>tokens in/out${t.think?` (${t.think} thinking)`:""}</span></div><div><b>${t.tools.length}${t.overlap?" ∥":""}</b><span>tool calls${t.overlap?" (parallel)":""}</span></div></div>
+      ${t.otherTraces?`<div class="note">File had ${t.otherTraces+1} traces; showing the largest.</div>`:""}
+    </div>`).join("")+`</div>`;
+  // 2 shape
+  h+=`<div class="eyebrow">2 · The shape</div><h2>Every one is a tree of spans</h2>${legend}<div class="grid" style="${cols}">`+TRACES.map(t=>`<div class="card"><h3>${esc(framework(t))}</h3><div class="note">${t.main.length} spans · instrumentation: ${esc(t.scopes.join(", ")||"n/a")}</div>${renderTree(t)}</div>`).join("")+`</div>`;
+  // 3 model call json
+  h+=`<div class="eyebrow">3 · One model call, raw JSON</div><h2>Same facts, different keys</h2><div class="legend">${FACTS.filter((f,i,a)=>a.findIndex(x=>x.color===f.color)===i).map(f=>`<span><b style="background:${f.color}"></b>${f.label}</span>`).join("")}</div><div class="grid" style="${cols}">`+TRACES.map(t=>{const ms=firstModelSpan(t);return `<div><h3 style="margin:6px 0 10px">${esc(framework(t))} · <code>${esc(ms?ms.name:"no model span")}</code></h3>${ms?renderJSON(ms.attrs):'<div class="empty">No LLM span found.</div>'}</div>`}).join("")+`</div>`;
+  // 4 words
+  h+=`<div class="eyebrow">4 · Where the words go</div><h2>On the span, in a separate event, or not captured</h2><div class="grid" style="${cols}">`+TRACES.map(t=>{const ms=firstModelSpan(t);const fi=findFact(t,FACTS.find(f=>f.id==='in'),ms),fo=findFact(t,FACTS.find(f=>f.id==='out'),ms);
+    const lab=w=>w==="span"?'<span class="where span">on the span</span>':w==="event"?'<span class="where event">separate event</span>':w==="redacted"?'<span class="where none">redacted on the span</span>':'<span class="where none">not captured</span>';
+    const ev=ms&&t.events.find(e=>e.span_id===ms.span_id);
+    return `<div class="card"><h3>${esc(framework(t))}</h3><p class="note">What went in: ${lab(fi.where)} ${fi.k?`<code>${esc(fi.k)}</code>`:""}<br>What came out: ${lab(fo.where)} ${fo.k?`<code>${esc(fo.k)}</code>`:""}</p>
+      ${ev?renderJSON(Object.assign({event_name:ev.name,trace_id:ev.trace_id,span_id:ev.span_id},Object.fromEntries(Object.entries(ev.attrs).filter(([k])=>/input\.messages|output\.messages|user\.id/.test(k)))),140):fi.where==="span"?renderJSON(Object.fromEntries(["input.value","output.value"].filter(k=>k in ms.attrs).map(k=>[k,ms.attrs[k]])),140):""}
+      <p class="note">${fi.where==="event"?"Words exist only because someone opted in (OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT). The span stays small; the transcript is a log, linked by span_id, that you can store and protect separately.":fi.where==="span"?"Words travel with the span: easy to read in one place, and every backend that stores the trace stores the conversation.":"No content in this telemetry: you get timing, tokens and tools, not the conversation."}</p></div>`}).join("")+`</div>`;
+  // 5 rosetta
+  h+=`<div class="eyebrow">5 · The Rosetta table</div><h2>Same fact, the key each trace used</h2><table><thead><tr><th>fact</th>${TRACES.map(t=>`<th>${esc(t.name)}</th>`).join("")}</tr></thead><tbody>`+FACTS.map(f=>`<tr><td><b style="color:${f.color}">${f.label}</b></td>${TRACES.map(t=>{const r=findFact(t,f,firstModelSpan(t));return `<td>${r.k?`<code>${esc(r.k)}</code><div class="v">${esc(short(r.v,70))}</div><div class="w">${r.where==="event"?"in an event":r.where==="redacted"?"redacted":"on "+esc(r.on||"a span")}</div>`:'<span class="w">not present</span>'}</td>`}).join("")}</tr>`).join("")+`</tbody></table>`;
+  const gThink=TRACES.find(x=>x.llmLeaves.some(s=>"gen_ai.usage.reasoning.output_tokens" in s.attrs)),oThink=TRACES.find(x=>x.llmLeaves.some(s=>"llm.token_count.completion_details.reasoning" in s.attrs));
+  if(gThink&&oThink){const gs=gThink.llmLeaves.find(s=>"gen_ai.usage.reasoning.output_tokens" in s.attrs),os=oThink.llmLeaves.find(s=>"llm.token_count.completion_details.reasoning" in s.attrs);
+    h+=`<div class="box" style="margin-top:16px;border-color:#fde293;background:#fffbea"><h4>Same name, different meaning: output tokens</h4><p><code>gen_ai.usage.output_tokens</code> = <b>${gs.attrs["gen_ai.usage.output_tokens"]}</b> includes the model's thinking (<code>gen_ai.usage.reasoning.output_tokens</code> = ${gs.attrs["gen_ai.usage.reasoning.output_tokens"]}). <code>llm.token_count.completion</code> = <b>${os.attrs["llm.token_count.completion"]}</b> is the visible answer only; thinking is in <code>llm.token_count.completion_details.reasoning</code> = ${os.attrs["llm.token_count.completion_details.reasoning"]}. Add them up naively and the cost per agent is wrong. The cards above normalize both to "everything the model generated".</p></div>`}
+  // 6 traces vs session
+  const withS=TRACES.filter(t=>t.session);
+  h+=`<div class="eyebrow">6 · Traces vs session data</div><h2>How it ran vs what was said</h2>
+  <div class="vs" style="margin-top:12px"><div class="box"><h4>Trace (telemetry)</h4><p><b>Answers:</b> how did this request run? How long did each step take, which model, how many tokens, which tools, in what order, did anything fail?</p><p><b>Written by:</b> OpenTelemetry instrumentation, for observability tools (Cloud Trace, BigQuery, Phoenix).</p><p><b>Lives:</b> per request (one trace_id), sampled, kept for a retention period.</p></div>
+  <div class="box"><h4>Session (application state)</h4><p><b>Answers:</b> what is this conversation? Every message, tool call and result, plus state, so the agent can continue it next turn.</p><p><b>Written by:</b> the framework itself (ADK SessionService, LangGraph checkpointer), for the agent.</p><p><b>Lives:</b> per conversation (one session / thread id), as long as the app keeps it. It is not telemetry and has no timings.</p></div></div>`;
+  if(withS.length){h+=`<div class="grid" style="margin-top:18px;${cols}">`+withS.map(t=>{const items=sessionItems(t.session);return `<div class="card"><h3>${esc(t.session.kind)}</h3><div class="note">${items.length} items · same run as the ${t.main.length}-span trace</div><div class="sess">${items.map(i=>`<div class="si"><div class="r">${esc(i.role)} · ${esc(i.type)}</div><div class="c">${esc(short(i.text,220))}</div></div>`).join("")}</div></div>`}).join("")+`</div>`}
+  else h+=`<p class="note">Load a capture file (it includes the session) or an ADK session / LangGraph checkpoint JSON to see the session next to its trace.</p>`;
+  out.innerHTML=h;
+}
+
+// ---------- loading ----------
+function addParsed(p){
+  if(!p.spans.length&&p.session&&TRACES.length){const pref=p.name.split(/[_.\-]/)[0];const tgt=TRACES.find(t=>t.name.startsWith(pref))||TRACES[TRACES.length-1];tgt.session=p.session;return}
+  if(!p.spans.length&&p.events.length&&TRACES.length){TRACES[TRACES.length-1].events.push(...p.events);return}
+  if(!p.spans.length)throw new Error(`${p.name}: no spans, events or session found`);
+  TRACES.push(analyze(p));
+}
+window.loadText=function(name,text){try{addParsed(parseText(name,text))}catch(e){document.getElementById("err").textContent+=`${name}: ${e.message}\n`}render()};
+async function loadFiles(files){document.getElementById("err").textContent="";for(const f of files){window.loadText(f.name,await f.text())}}
+document.getElementById("file").onchange=e=>loadFiles(e.target.files);
+const drop=document.getElementById("drop");
+["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("over")}));
+["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("over")}));
+drop.addEventListener("drop",e=>loadFiles(e.dataTransfer.files));
+document.getElementById("clear").onclick=()=>{TRACES=[];document.getElementById("err").textContent="";render()};
+document.getElementById("samples").onclick=()=>{TRACES=[];const S=JSON.parse(document.getElementById("samples-data").textContent||"{}");Object.entries(S).forEach(([n,d])=>window.loadText(n,JSON.stringify(d)))};
+render();
+if(location.hash.includes("samples"))document.getElementById("samples").click();
+</script>
+</main></body></html>

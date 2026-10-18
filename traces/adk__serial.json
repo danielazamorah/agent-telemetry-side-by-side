@@ -1,56 +1,58 @@
 {
   "agent": "adk",
+  "model": "gemini-3.8-flash",
   "question": "How much is the Fado night in Lisbon in US dollars?",
-  "answer": "The Fado night at Alfama costs 35 EUR, which is approximately 38.15 USD. I hope you have a wonderful time enjoying the music in Lisbon!",
+  "answer": "The Fado night at Alfama in Lisbon costs 35 EUR. Converted to US dollars, the ticket price is $38.15.",
   "spans": [
     {
       "name": "invocation",
-      "trace_id": "ac2c0b9a635ffdc0fa87527907feac85",
-      "span_id": "5bedae95efe538af",
+      "trace_id": "61e9f073633104c105a2f85277a06ac5",
+      "span_id": "ea0a0fc038e27acd",
       "parent_span_id": null,
-      "start_time_ns": 1792302102497826045,
-      "end_time_ns": 1792302107284923665,
-      "duration_ms": 4787.1,
+      "start_time_ns": 1792307846147920456,
+      "end_time_ns": 1792307853633868988,
+      "duration_ms": 7485.9,
       "instrumentation": "gcp.vertex.agent",
       "attributes": {},
       "status": "UNSET"
     },
     {
       "name": "invoke_agent trip_concierge",
-      "trace_id": "ac2c0b9a635ffdc0fa87527907feac85",
-      "span_id": "299225f6c27a712d",
-      "parent_span_id": "5bedae95efe538af",
-      "start_time_ns": 1792302102501235702,
-      "end_time_ns": 1792302107267544605,
-      "duration_ms": 4766.3,
+      "trace_id": "61e9f073633104c105a2f85277a06ac5",
+      "span_id": "17b1e0bcf6db2786",
+      "parent_span_id": "ea0a0fc038e27acd",
+      "start_time_ns": 1792307846151774646,
+      "end_time_ns": 1792307853604902884,
+      "duration_ms": 7453.1,
       "instrumentation": "gcp.vertex.agent",
       "attributes": {
         "gen_ai.operation.name": "invoke_agent",
         "gen_ai.agent.description": "",
         "gen_ai.agent.name": "trip_concierge",
-        "gen_ai.conversation.id": "b20f72f7-5b1c-410a-9b17-ee80eec6b651"
+        "gen_ai.conversation.id": "e478e6b6-12b4-4794-8a44-4d74c0f01a2c"
       },
       "status": "UNSET"
     },
     {
       "name": "call_llm",
-      "trace_id": "ac2c0b9a635ffdc0fa87527907feac85",
-      "span_id": "d86db304a2b440ff",
-      "parent_span_id": "299225f6c27a712d",
-      "start_time_ns": 1792302102568940817,
-      "end_time_ns": 1792302105228731538,
-      "duration_ms": 2659.8,
+      "trace_id": "61e9f073633104c105a2f85277a06ac5",
+      "span_id": "1782a2e9d82b9752",
+      "parent_span_id": "17b1e0bcf6db2786",
+      "start_time_ns": 1792307846221617384,
+      "end_time_ns": 1792307850106991185,
+      "duration_ms": 3885.4,
       "instrumentation": "gcp.vertex.agent",
       "attributes": {
         "gen_ai.system": "gcp.vertex.agent",
-        "gen_ai.request.model": "gemini-3.1-flash-lite",
-        "gcp.vertex.agent.invocation_id": "e-73da7b94-eea1-451e-b929-6175d9cd380b",
-        "gcp.vertex.agent.session_id": "b20f72f7-5b1c-410a-9b17-ee80eec6b651",
-        "gcp.vertex.agent.event_id": "f0963f9c-923c-4d44-9aa9-58a5df8e238a",
+        "gen_ai.request.model": "gemini-3.8-flash",
+        "gcp.vertex.agent.invocation_id": "e-2396b464-cb56-4a1c-8830-981d736aa780",
+        "gcp.vertex.agent.session_id": "e478e6b6-12b4-4794-8a44-4d74c0f01a2c",
+        "gcp.vertex.agent.event_id": "cae0bb5b-1e7e-4ac7-94c7-302554d134ee",
         "gcp.vertex.agent.llm_request": "{}",
         "gcp.vertex.agent.llm_response": "{}",
         "gen_ai.usage.input_tokens": 268,
-        "gen_ai.usage.output_tokens": 17,
+        "gen_ai.usage.output_tokens": 164,
+        "gen_ai.usage.reasoning.output_tokens": 147,
         "gen_ai.response.finish_reasons": [
           "stop"
         ]
@@ -58,38 +60,39 @@
       "status": "UNSET"
     },
     {
-      "name": "generate_content gemini-3.1-flash-lite",
-      "trace_id": "ac2c0b9a635ffdc0fa87527907feac85",
-      "span_id": "373e684cff0a2f6f",
-      "parent_span_id": "d86db304a2b440ff",
-      "start_time_ns": 1792302102569247944,
-      "end_time_ns": 1792302104322324511,
-      "duration_ms": 1753.1,
+      "name": "generate_content gemini-3.8-flash",
+      "trace_id": "61e9f073633104c105a2f85277a06ac5",
+      "span_id": "dc8a4b953a7d0409",
+      "parent_span_id": "1782a2e9d82b9752",
+      "start_time_ns": 1792307846221956728,
+      "end_time_ns": 1792307849200772379,
+      "duration_ms": 2978.8,
       "instrumentation": "gcp.vertex.agent",
       "attributes": {
         "gen_ai.operation.name": "generate_content",
-        "gen_ai.request.model": "gemini-3.1-flash-lite",
+        "gen_ai.request.model": "gemini-3.8-flash",
         "gen_ai.agent.name": "trip_concierge",
-        "gen_ai.conversation.id": "b20f72f7-5b1c-410a-9b17-ee80eec6b651",
-        "gcp.vertex.agent.event_id": "f0963f9c-923c-4d44-9aa9-58a5df8e238a",
-        "gcp.vertex.agent.invocation_id": "e-73da7b94-eea1-451e-b929-6175d9cd380b",
+        "gen_ai.conversation.id": "e478e6b6-12b4-4794-8a44-4d74c0f01a2c",
+        "gcp.vertex.agent.event_id": "cae0bb5b-1e7e-4ac7-94c7-302554d134ee",
+        "gcp.vertex.agent.invocation_id": "e-2396b464-cb56-4a1c-8830-981d736aa780",
         "gen_ai.response.finish_reasons": [
           "stop"
         ],
         "gen_ai.usage.input_tokens": 268,
-        "gen_ai.usage.output_tokens": 17,
+        "gen_ai.usage.output_tokens": 164,
+        "gen_ai.usage.reasoning.output_tokens": 147,
         "gen_ai.tool.definitions": "[{\"name\":\"get_weather\",\"description\":\"Returns the weekend weather forecast for a city.\\n\\nArgs:\\n    city: City name, for example \\\"Lisbon\\\".\",\"parameters\":null,\"type\":\"function\"},{\"name\":\"get_events\",\"description\":\"Returns events in a city this weekend, with ticket prices.\\n\\nArgs:\\n    city: City name, for example \\\"Lisbon\\\".\",\"parameters\":null,\"type\":\"function\"},{\"name\":\"convert_currency\",\"description\":\"Converts an amount between currencies.\\n\\nArgs:\\n    amount: Amount to convert.\\n    from_currency: ISO code, for example \\\"EUR\\\".\\n    to_currency: ISO code, for example \\\"USD\\\".\",\"parameters\":null,\"type\":\"function\"}]"
       },
       "status": "UNSET"
     },
     {
       "name": "execute_tool get_events",
-      "trace_id": "ac2c0b9a635ffdc0fa87527907feac85",
-      "span_id": "5b854e7baff11b3b",
-      "parent_span_id": "299225f6c27a712d",
-      "start_time_ns": 1792302104323515242,
-      "end_time_ns": 1792302105227896928,
-      "duration_ms": 904.4,
+      "trace_id": "61e9f073633104c105a2f85277a06ac5",
+      "span_id": "2133eb3224ef5731",
+      "parent_span_id": "17b1e0bcf6db2786",
+      "start_time_ns": 1792307849201976824,
+      "end_time_ns": 1792307850106139886,
+      "duration_ms": 904.2,
       "instrumentation": "gcp.vertex.agent",
       "attributes": {
         "gen_ai.operation.name": "execute_tool",
@@ -100,31 +103,32 @@
         "gcp.vertex.agent.llm_request": "{}",
         "gcp.vertex.agent.llm_response": "{}",
         "gcp.vertex.agent.tool_call_args": "{}",
-        "gen_ai.tool.call.id": "call_1028893",
-        "gcp.vertex.agent.event_id": "782a5292-a3e0-4c81-abdb-b8baec5c452d",
+        "gen_ai.tool.call.id": "call_634372",
+        "gcp.vertex.agent.event_id": "0a4d494c-042d-43ec-a5bc-7458b6fbf72a",
         "gcp.vertex.agent.tool_response": "{}"
       },
       "status": "UNSET"
     },
     {
       "name": "call_llm",
-      "trace_id": "ac2c0b9a635ffdc0fa87527907feac85",
-      "span_id": "218c38bf02561842",
-      "parent_span_id": "299225f6c27a712d",
-      "start_time_ns": 1792302105231065324,
-      "end_time_ns": 1792302106504838250,
-      "duration_ms": 1273.8,
+      "trace_id": "61e9f073633104c105a2f85277a06ac5",
+      "span_id": "9d1aa046082a3caf",
+      "parent_span_id": "17b1e0bcf6db2786",
+      "start_time_ns": 1792307850109281961,
+      "end_time_ns": 1792307851845656548,
+      "duration_ms": 1736.4,
       "instrumentation": "gcp.vertex.agent",
       "attributes": {
         "gen_ai.system": "gcp.vertex.agent",
-        "gen_ai.request.model": "gemini-3.1-flash-lite",
-        "gcp.vertex.agent.invocation_id": "e-73da7b94-eea1-451e-b929-6175d9cd380b",
-        "gcp.vertex.agent.session_id": "b20f72f7-5b1c-410a-9b17-ee80eec6b651",
-        "gcp.vertex.agent.event_id": "e818753f-5569-421f-ad13-dd81406ce381",
+        "gen_ai.request.model": "gemini-3.8-flash",
+        "gcp.vertex.agent.invocation_id": "e-2396b464-cb56-4a1c-8830-981d736aa780",
+        "gcp.vertex.agent.session_id": "e478e6b6-12b4-4794-8a44-4d74c0f01a2c",
+        "gcp.vertex.agent.event_id": "7fbe55b6-3417-460d-a1be-7b85e39ef76b",
         "gcp.vertex.agent.llm_request": "{}",
         "gcp.vertex.agent.llm_response": "{}",
-        "gen_ai.usage.input_tokens": 301,
-        "gen_ai.usage.output_tokens": 31,
+        "gen_ai.usage.input_tokens": 448,
+        "gen_ai.usage.output_tokens": 88,
+        "gen_ai.usage.reasoning.output_tokens": 57,
         "gen_ai.response.finish_reasons": [
           "stop"
         ]
@@ -132,38 +136,39 @@
       "status": "UNSET"
     },
     {
-      "name": "generate_content gemini-3.1-flash-lite",
-      "trace_id": "ac2c0b9a635ffdc0fa87527907feac85",
-      "span_id": "bd9c9c6ec3a01bcd",
-      "parent_span_id": "218c38bf02561842",
-      "start_time_ns": 1792302105231316875,
-      "end_time_ns": 1792302106000448079,
-      "duration_ms": 769.1,
+      "name": "generate_content gemini-3.8-flash",
+      "trace_id": "61e9f073633104c105a2f85277a06ac5",
+      "span_id": "3c93f36486dc4ee6",
+      "parent_span_id": "9d1aa046082a3caf",
+      "start_time_ns": 1792307850109517395,
+      "end_time_ns": 1792307851342331696,
+      "duration_ms": 1232.8,
       "instrumentation": "gcp.vertex.agent",
       "attributes": {
         "gen_ai.operation.name": "generate_content",
-        "gen_ai.request.model": "gemini-3.1-flash-lite",
+        "gen_ai.request.model": "gemini-3.8-flash",
         "gen_ai.agent.name": "trip_concierge",
-        "gen_ai.conversation.id": "b20f72f7-5b1c-410a-9b17-ee80eec6b651",
-        "gcp.vertex.agent.event_id": "e818753f-5569-421f-ad13-dd81406ce381",
-        "gcp.vertex.agent.invocation_id": "e-73da7b94-eea1-451e-b929-6175d9cd380b",
+        "gen_ai.conversation.id": "e478e6b6-12b4-4794-8a44-4d74c0f01a2c",
+        "gcp.vertex.agent.event_id": "7fbe55b6-3417-460d-a1be-7b85e39ef76b",
+        "gcp.vertex.agent.invocation_id": "e-2396b464-cb56-4a1c-8830-981d736aa780",
         "gen_ai.response.finish_reasons": [
           "stop"
         ],
-        "gen_ai.usage.input_tokens": 301,
-        "gen_ai.usage.output_tokens": 31,
+        "gen_ai.usage.input_tokens": 448,
+        "gen_ai.usage.output_tokens": 88,
+        "gen_ai.usage.reasoning.output_tokens": 57,
         "gen_ai.tool.definitions": "[{\"name\":\"get_weather\",\"description\":\"Returns the weekend weather forecast for a city.\\n\\nArgs:\\n    city: City name, for example \\\"Lisbon\\\".\",\"parameters\":null,\"type\":\"function\"},{\"name\":\"get_events\",\"description\":\"Returns events in a city this weekend, with ticket prices.\\n\\nArgs:\\n    city: City name, for example \\\"Lisbon\\\".\",\"parameters\":null,\"type\":\"function\"},{\"name\":\"convert_currency\",\"description\":\"Converts an amount between currencies.\\n\\nArgs:\\n    amount: Amount to convert.\\n    from_currency: ISO code, for example \\\"EUR\\\".\\n    to_currency: ISO code, for example \\\"USD\\\".\",\"parameters\":null,\"type\":\"function\"}]"
       },
       "status": "UNSET"
     },
     {
       "name": "execute_tool convert_currency",
-      "trace_id": "ac2c0b9a635ffdc0fa87527907feac85",
-      "span_id": "5d2e8dcc44a528f8",
-      "parent_span_id": "299225f6c27a712d",
-      "start_time_ns": 1792302106002231934,
-      "end_time_ns": 1792302106503970646,
-      "duration_ms": 501.7,
+      "trace_id": "61e9f073633104c105a2f85277a06ac5",
+      "span_id": "871a44fe8f9ec34a",
+      "parent_span_id": "17b1e0bcf6db2786",
+      "start_time_ns": 1792307851343386918,
+      "end_time_ns": 1792307851844915019,
+      "duration_ms": 501.5,
       "instrumentation": "gcp.vertex.agent",
       "attributes": {
         "gen_ai.operation.name": "execute_tool",
@@ -174,31 +179,32 @@
         "gcp.vertex.agent.llm_request": "{}",
         "gcp.vertex.agent.llm_response": "{}",
         "gcp.vertex.agent.tool_call_args": "{}",
-        "gen_ai.tool.call.id": "call_4093741",
-        "gcp.vertex.agent.event_id": "6b83310b-8938-4f59-a898-6df4f42fb41f",
+        "gen_ai.tool.call.id": "call_672137",
+        "gcp.vertex.agent.event_id": "f39247ab-14c2-4c9a-85d3-049d824f907f",
         "gcp.vertex.agent.tool_response": "{}"
       },
       "status": "UNSET"
     },
     {
       "name": "call_llm",
-      "trace_id": "ac2c0b9a635ffdc0fa87527907feac85",
-      "span_id": "b63605d304daf105",
-      "parent_span_id": "299225f6c27a712d",
-      "start_time_ns": 1792302106508051408,
-      "end_time_ns": 1792302107267379206,
-      "duration_ms": 759.3,
+      "trace_id": "61e9f073633104c105a2f85277a06ac5",
+      "span_id": "fd3b99f84642ee3a",
+      "parent_span_id": "17b1e0bcf6db2786",
+      "start_time_ns": 1792307851848149710,
+      "end_time_ns": 1792307853604647105,
+      "duration_ms": 1756.5,
       "instrumentation": "gcp.vertex.agent",
       "attributes": {
         "gen_ai.system": "gcp.vertex.agent",
-        "gen_ai.request.model": "gemini-3.1-flash-lite",
-        "gcp.vertex.agent.invocation_id": "e-73da7b94-eea1-451e-b929-6175d9cd380b",
-        "gcp.vertex.agent.session_id": "b20f72f7-5b1c-410a-9b17-ee80eec6b651",
-        "gcp.vertex.agent.event_id": "32731a78-9228-489d-9931-3134abeeaee6",
+        "gen_ai.request.model": "gemini-3.8-flash",
+        "gcp.vertex.agent.invocation_id": "e-2396b464-cb56-4a1c-8830-981d736aa780",
+        "gcp.vertex.agent.session_id": "e478e6b6-12b4-4794-8a44-4d74c0f01a2c",
+        "gcp.vertex.agent.event_id": "3ae95828-5e6f-4f46-8da0-37795ee945e9",
         "gcp.vertex.agent.llm_request": "{}",
         "gcp.vertex.agent.llm_response": "{}",
-        "gen_ai.usage.input_tokens": 337,
-        "gen_ai.usage.output_tokens": 37,
+        "gen_ai.usage.input_tokens": 541,
+        "gen_ai.usage.output_tokens": 79,
+        "gen_ai.usage.reasoning.output_tokens": 47,
         "gen_ai.response.finish_reasons": [
           "stop"
         ]
@@ -206,26 +212,27 @@
       "status": "UNSET"
     },
     {
-      "name": "generate_content gemini-3.1-flash-lite",
-      "trace_id": "ac2c0b9a635ffdc0fa87527907feac85",
-      "span_id": "a72d4bc853d22f25",
-      "parent_span_id": "b63605d304daf105",
-      "start_time_ns": 1792302106508393624,
-      "end_time_ns": 1792302107266469887,
-      "duration_ms": 758.1,
+      "name": "generate_content gemini-3.8-flash",
+      "trace_id": "61e9f073633104c105a2f85277a06ac5",
+      "span_id": "c745cbb510d1969e",
+      "parent_span_id": "fd3b99f84642ee3a",
+      "start_time_ns": 1792307851848398562,
+      "end_time_ns": 1792307853603414015,
+      "duration_ms": 1755.0,
       "instrumentation": "gcp.vertex.agent",
       "attributes": {
         "gen_ai.operation.name": "generate_content",
-        "gen_ai.request.model": "gemini-3.1-flash-lite",
+        "gen_ai.request.model": "gemini-3.8-flash",
         "gen_ai.agent.name": "trip_concierge",
-        "gen_ai.conversation.id": "b20f72f7-5b1c-410a-9b17-ee80eec6b651",
-        "gcp.vertex.agent.event_id": "32731a78-9228-489d-9931-3134abeeaee6",
-        "gcp.vertex.agent.invocation_id": "e-73da7b94-eea1-451e-b929-6175d9cd380b",
+        "gen_ai.conversation.id": "e478e6b6-12b4-4794-8a44-4d74c0f01a2c",
+        "gcp.vertex.agent.event_id": "3ae95828-5e6f-4f46-8da0-37795ee945e9",
+        "gcp.vertex.agent.invocation_id": "e-2396b464-cb56-4a1c-8830-981d736aa780",
         "gen_ai.response.finish_reasons": [
           "stop"
         ],
-        "gen_ai.usage.input_tokens": 337,
-        "gen_ai.usage.output_tokens": 37,
+        "gen_ai.usage.input_tokens": 541,
+        "gen_ai.usage.output_tokens": 79,
+        "gen_ai.usage.reasoning.output_tokens": 47,
         "gen_ai.tool.definitions": "[{\"name\":\"get_weather\",\"description\":\"Returns the weekend weather forecast for a city.\\n\\nArgs:\\n    city: City name, for example \\\"Lisbon\\\".\",\"parameters\":null,\"type\":\"function\"},{\"name\":\"get_events\",\"description\":\"Returns events in a city this weekend, with ticket prices.\\n\\nArgs:\\n    city: City name, for example \\\"Lisbon\\\".\",\"parameters\":null,\"type\":\"function\"},{\"name\":\"convert_currency\",\"description\":\"Converts an amount between currencies.\\n\\nArgs:\\n    amount: Amount to convert.\\n    from_currency: ISO code, for example \\\"EUR\\\".\\n    to_currency: ISO code, for example \\\"USD\\\".\",\"parameters\":null,\"type\":\"function\"}]"
       },
       "status": "UNSET"
@@ -234,19 +241,20 @@
   "events": [
     {
       "event_name": "gen_ai.client.inference.operation.details",
-      "trace_id": "ac2c0b9a635ffdc0fa87527907feac85",
-      "span_id": "373e684cff0a2f6f",
+      "trace_id": "61e9f073633104c105a2f85277a06ac5",
+      "span_id": "dc8a4b953a7d0409",
       "attributes": {
         "gen_ai.agent.name": "trip_concierge",
-        "gen_ai.conversation.id": "b20f72f7-5b1c-410a-9b17-ee80eec6b651",
-        "gcp.vertex.agent.event_id": "f0963f9c-923c-4d44-9aa9-58a5df8e238a",
-        "gcp.vertex.agent.invocation_id": "e-73da7b94-eea1-451e-b929-6175d9cd380b",
+        "gen_ai.conversation.id": "e478e6b6-12b4-4794-8a44-4d74c0f01a2c",
+        "gcp.vertex.agent.event_id": "cae0bb5b-1e7e-4ac7-94c7-302554d134ee",
+        "gcp.vertex.agent.invocation_id": "e-2396b464-cb56-4a1c-8830-981d736aa780",
         "user.id": "ana",
         "gen_ai.response.finish_reasons": [
           "stop"
         ],
         "gen_ai.usage.input_tokens": 268,
-        "gen_ai.usage.output_tokens": 17,
+        "gen_ai.usage.output_tokens": 164,
+        "gen_ai.usage.reasoning.output_tokens": 147,
         "gen_ai.input.messages": [
           {
             "role": "user",
@@ -335,7 +343,7 @@
             "role": "assistant",
             "parts": [
               {
-                "id": "call_1028893",
+                "id": "call_634372",
                 "name": "get_events",
                 "arguments": {
                   "city": "Lisbon"
@@ -351,19 +359,20 @@
     },
     {
       "event_name": "gen_ai.client.inference.operation.details",
-      "trace_id": "ac2c0b9a635ffdc0fa87527907feac85",
-      "span_id": "bd9c9c6ec3a01bcd",
+      "trace_id": "61e9f073633104c105a2f85277a06ac5",
+      "span_id": "3c93f36486dc4ee6",
       "attributes": {
         "gen_ai.agent.name": "trip_concierge",
-        "gen_ai.conversation.id": "b20f72f7-5b1c-410a-9b17-ee80eec6b651",
-        "gcp.vertex.agent.event_id": "e818753f-5569-421f-ad13-dd81406ce381",
-        "gcp.vertex.agent.invocation_id": "e-73da7b94-eea1-451e-b929-6175d9cd380b",
+        "gen_ai.conversation.id": "e478e6b6-12b4-4794-8a44-4d74c0f01a2c",
+        "gcp.vertex.agent.event_id": "7fbe55b6-3417-460d-a1be-7b85e39ef76b",
+        "gcp.vertex.agent.invocation_id": "e-2396b464-cb56-4a1c-8830-981d736aa780",
         "user.id": "ana",
         "gen_ai.response.finish_reasons": [
           "stop"
         ],
-        "gen_ai.usage.input_tokens": 301,
-        "gen_ai.usage.output_tokens": 31,
+        "gen_ai.usage.input_tokens": 448,
+        "gen_ai.usage.output_tokens": 88,
+        "gen_ai.usage.reasoning.output_tokens": 57,
         "gen_ai.input.messages": [
           {
             "role": "user",
@@ -378,7 +387,7 @@
             "role": "assistant",
             "parts": [
               {
-                "id": "call_1028893",
+                "id": "call_634372",
                 "name": "get_events",
                 "arguments": {
                   "city": "Lisbon"
@@ -391,7 +400,7 @@
             "role": "user",
             "parts": [
               {
-                "id": "call_1028893",
+                "id": "call_634372",
                 "response": {
                   "city": "Lisbon",
                   "events": [
@@ -484,11 +493,11 @@
             "role": "assistant",
             "parts": [
               {
-                "id": "call_4093741",
+                "id": "call_672137",
                 "name": "convert_currency",
                 "arguments": {
-                  "from_currency": "EUR",
                   "amount": 35,
+                  "from_currency": "EUR",
                   "to_currency": "USD"
                 },
                 "type": "tool_call"
@@ -502,19 +511,20 @@
     },
     {
       "event_name": "gen_ai.client.inference.operation.details",
-      "trace_id": "ac2c0b9a635ffdc0fa87527907feac85",
-      "span_id": "a72d4bc853d22f25",
+      "trace_id": "61e9f073633104c105a2f85277a06ac5",
+      "span_id": "c745cbb510d1969e",
       "attributes": {
         "gen_ai.agent.name": "trip_concierge",
-        "gen_ai.conversation.id": "b20f72f7-5b1c-410a-9b17-ee80eec6b651",
-        "gcp.vertex.agent.event_id": "32731a78-9228-489d-9931-3134abeeaee6",
-        "gcp.vertex.agent.invocation_id": "e-73da7b94-eea1-451e-b929-6175d9cd380b",
+        "gen_ai.conversation.id": "e478e6b6-12b4-4794-8a44-4d74c0f01a2c",
+        "gcp.vertex.agent.event_id": "3ae95828-5e6f-4f46-8da0-37795ee945e9",
+        "gcp.vertex.agent.invocation_id": "e-2396b464-cb56-4a1c-8830-981d736aa780",
         "user.id": "ana",
         "gen_ai.response.finish_reasons": [
           "stop"
         ],
-        "gen_ai.usage.input_tokens": 337,
-        "gen_ai.usage.output_tokens": 37,
+        "gen_ai.usage.input_tokens": 541,
+        "gen_ai.usage.output_tokens": 79,
+        "gen_ai.usage.reasoning.output_tokens": 47,
         "gen_ai.input.messages": [
           {
             "role": "user",
@@ -529,7 +539,7 @@
             "role": "assistant",
             "parts": [
               {
-                "id": "call_1028893",
+                "id": "call_634372",
                 "name": "get_events",
                 "arguments": {
                   "city": "Lisbon"
@@ -542,7 +552,7 @@
             "role": "user",
             "parts": [
               {
-                "id": "call_1028893",
+                "id": "call_634372",
                 "response": {
                   "city": "Lisbon",
                   "events": [
@@ -561,11 +571,11 @@
             "role": "assistant",
             "parts": [
               {
-                "id": "call_4093741",
+                "id": "call_672137",
                 "name": "convert_currency",
                 "arguments": {
-                  "from_currency": "EUR",
                   "amount": 35,
+                  "from_currency": "EUR",
                   "to_currency": "USD"
                 },
                 "type": "tool_call"
@@ -576,7 +586,7 @@
             "role": "user",
             "parts": [
               {
-                "id": "call_4093741",
+                "id": "call_672137",
                 "response": {
                   "converted": 38.15,
                   "rate": 1.09
@@ -663,7 +673,7 @@
             "role": "assistant",
             "parts": [
               {
-                "content": "The Fado night at Alfama costs 35 EUR, which is approximately 38.15 USD. I hope you have a wonderful time enjoying the music in Lisbon!",
+                "content": "The Fado night at Alfama in Lisbon costs 35 EUR. Converted to US dollars, the ticket price is $38.15.",
                 "type": "text"
               }
             ],
@@ -673,5 +683,258 @@
       },
       "body": null
     }
-  ]
+  ],
+  "session": {
+    "framework": "adk",
+    "kind": "ADK Session (SessionService)",
+    "data": {
+      "id": "e478e6b6-12b4-4794-8a44-4d74c0f01a2c",
+      "app_name": "trip_concierge",
+      "user_id": "ana",
+      "state": {},
+      "events": [
+        {
+          "content": {
+            "parts": [
+              {
+                "text": "How much is the Fado night in Lisbon in US dollars?"
+              }
+            ],
+            "role": "user"
+          },
+          "invocation_id": "e-2396b464-cb56-4a1c-8830-981d736aa780",
+          "author": "user",
+          "actions": {
+            "state_delta": {},
+            "artifact_delta": {},
+            "requested_auth_configs": {},
+            "requested_tool_confirmations": {}
+          },
+          "node_info": {
+            "path": ""
+          },
+          "id": "98ab35d2-a2f3-4270-90a6-c68e3f3a1a69",
+          "timestamp": 1792307846.1485624
+        },
+        {
+          "model_version": "gemini-3.8-flash",
+          "content": {
+            "parts": [
+              {
+                "function_call": {
+                  "id": "call_634372",
+                  "args": {
+                    "city": "Lisbon"
+                  },
+                  "name": "get_events"
+                },
+                "thought_signature": "AY89a19BXr93gPTe0s3DM_sil9cyU9_oruQjLBJPfLRy2ijbqAKNrHENuSxKT0fG_JS2N9dzhwYireIrGUjanwwvhyto_E8C03y82I-DOg_985V98NQ59LacYjq4A0cfiNdlRwL74ud-Hz5BfPfiwBas4XYieT1jIdPv-17i0xXFuWuXsJadsweq8NEU28wHuEEpZ1jloBq1bFNosLB2LgQAoJvMOPrZqWJILNrvkkStXElDF-4h5CI2TSpmpzo6jmhYWQGAn_LYksuc9WvawayrhSVfaYhEW-LOxHbgdn1pclK-X8kwMobDnRl11siaXF1Zb8CHX0Z4QLwjiPRsy-YqDvY8574hEX-nCkje1A8oczjS31wcABtcaND3XZRVdXDStIFrligcr55P9h1TR01mVkTOoAR2iHxGSurgnX_Sb_eDlxpW2F4SKBC2rgxY6yHC4wSR-VXs1KKdMonQNL0EuJzVGtdlYEoXzNqHIAXsWQAbHSZXRXZ39Z7VIong__jeoMDoNFEC0ls0bfafu9H597lGEV5SzYIKTyQEjoXZTsr32OYY31DjhwAcNMsCSV1ooJAr6v42WNsxr8bl_v7dyS5z4e1y6mtL3CCg5Ri_Al3FGsRO1uvTgbB3sk_rq_m6-yYYaneDCeRJ-AIPqS2aE-1bPTI38HkqPqVk5OPOO1jX0OBVoCu__yvdAhWC-_jNgTEImu8CeVgRsI5HCHORZ-P56cigD4sh4KKiBZHAq2TxVM51TZ2kzU6nktsS5J5VpIblAcoMOWtps4-1etyrnsABA87fHKxtvSrlAgF9"
+              }
+            ],
+            "role": "model"
+          },
+          "finish_reason": "STOP",
+          "usage_metadata": {
+            "candidates_token_count": 17,
+            "candidates_tokens_details": [
+              {
+                "modality": "TEXT",
+                "token_count": 17
+              }
+            ],
+            "prompt_token_count": 268,
+            "prompt_tokens_details": [
+              {
+                "modality": "TEXT",
+                "token_count": 268
+              }
+            ],
+            "thoughts_token_count": 147,
+            "total_token_count": 432,
+            "traffic_type": "ON_DEMAND"
+          },
+          "invocation_id": "e-2396b464-cb56-4a1c-8830-981d736aa780",
+          "author": "trip_concierge",
+          "actions": {
+            "state_delta": {},
+            "artifact_delta": {},
+            "requested_auth_configs": {},
+            "requested_tool_confirmations": {}
+          },
+          "node_info": {
+            "path": "trip_concierge@1"
+          },
+          "long_running_tool_ids": [],
+          "id": "cae0bb5b-1e7e-4ac7-94c7-302554d134ee",
+          "timestamp": 1792307846.2214968
+        },
+        {
+          "content": {
+            "parts": [
+              {
+                "function_response": {
+                  "id": "call_634372",
+                  "name": "get_events",
+                  "response": {
+                    "city": "Lisbon",
+                    "events": [
+                      {
+                        "name": "Fado night at Alfama",
+                        "price": 35.0,
+                        "currency": "EUR"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "role": "user"
+          },
+          "invocation_id": "e-2396b464-cb56-4a1c-8830-981d736aa780",
+          "author": "trip_concierge",
+          "actions": {
+            "state_delta": {},
+            "artifact_delta": {},
+            "requested_auth_configs": {},
+            "requested_tool_confirmations": {}
+          },
+          "node_info": {
+            "path": "trip_concierge@1"
+          },
+          "id": "0a4d494c-042d-43ec-a5bc-7458b6fbf72a",
+          "timestamp": 1792307850.1059053
+        },
+        {
+          "model_version": "gemini-3.8-flash",
+          "content": {
+            "parts": [
+              {
+                "function_call": {
+                  "id": "call_672137",
+                  "args": {
+                    "amount": 35,
+                    "from_currency": "EUR",
+                    "to_currency": "USD"
+                  },
+                  "name": "convert_currency"
+                },
+                "thought_signature": "AY89a18IODcEdlwP57rRN1TRATVGFmPSozYDqqqQAoNYARLH42RISU5s4Udo7DR87jLwPXfmVka3vGVEVpAFa0anEKnq22DjkZis6R30-yAgQJFNFTLOh11b2XZQMoO3gwfhtXLpqU4SYH6KBaVbTUceHwqdvTbMRRemyc4p5XRH6dy9wOmKyHfXvdfb5816PwX73YDOaNnGP2SwHJCX31Kh29MMUDxRy56XYojXhvXyz-NbzUOfkOfiVAIlvmpU6xlzxmZo7d2xvj_1M6PXXDTpb1eqIxtBY3EeL74hELvY6lKS9SvyFINt_iObKoyFgttxnfE3FxSUIIszF0i_j0y1Xg=="
+              }
+            ],
+            "role": "model"
+          },
+          "finish_reason": "STOP",
+          "usage_metadata": {
+            "candidates_token_count": 31,
+            "candidates_tokens_details": [
+              {
+                "modality": "TEXT",
+                "token_count": 31
+              }
+            ],
+            "prompt_token_count": 448,
+            "prompt_tokens_details": [
+              {
+                "modality": "TEXT",
+                "token_count": 448
+              }
+            ],
+            "thoughts_token_count": 57,
+            "total_token_count": 536,
+            "traffic_type": "ON_DEMAND"
+          },
+          "invocation_id": "e-2396b464-cb56-4a1c-8830-981d736aa780",
+          "author": "trip_concierge",
+          "actions": {
+            "state_delta": {},
+            "artifact_delta": {},
+            "requested_auth_configs": {},
+            "requested_tool_confirmations": {}
+          },
+          "node_info": {
+            "path": "trip_concierge@1"
+          },
+          "long_running_tool_ids": [],
+          "id": "7fbe55b6-3417-460d-a1be-7b85e39ef76b",
+          "timestamp": 1792307850.1091874
+        },
+        {
+          "content": {
+            "parts": [
+              {
+                "function_response": {
+                  "id": "call_672137",
+                  "name": "convert_currency",
+                  "response": {
+                    "converted": 38.15,
+                    "rate": 1.09
+                  }
+                }
+              }
+            ],
+            "role": "user"
+          },
+          "invocation_id": "e-2396b464-cb56-4a1c-8830-981d736aa780",
+          "author": "trip_concierge",
+          "actions": {
+            "state_delta": {},
+            "artifact_delta": {},
+            "requested_auth_configs": {},
+            "requested_tool_confirmations": {}
+          },
+          "node_info": {
+            "path": "trip_concierge@1"
+          },
+          "id": "f39247ab-14c2-4c9a-85d3-049d824f907f",
+          "timestamp": 1792307851.8446605
+        },
+        {
+          "model_version": "gemini-3.8-flash",
+          "content": {
+            "parts": [
+              {
+                "text": "The Fado night at Alfama in Lisbon costs 35 EUR. Converted to US dollars, the ticket price is $38.15.",
+                "thought_signature": "AY89a1_dcJp04YAeJBKEqEhaV0R0wChoY_vyABeYUd9wy2lR1_cy3ps7vjtaomg0KHz55v_AWxxDC386j5iCjkcpvecwlTkLCuKmoVXDK23l8qhyEAl-skjHGGmXeT4RgJxZGUpqtlSlonkUQvX1bZhVdfCTLX0H0jpnX5acj6MBmqdZ5g_Y6rcDYpdb8NbqrrvBOsH9FOYIa8dIYbpV4kjYXypQCJtYVTqe4o09TkyxlFlR2WWSDnk1UfUGtdt02jTKGiGcg4egicshmZ0_Ij-7pRWBQ1XLBXE1RDJT8UVULb3mhMs0cBfRT-1Iug=="
+              }
+            ],
+            "role": "model"
+          },
+          "finish_reason": "STOP",
+          "usage_metadata": {
+            "candidates_token_count": 32,
+            "candidates_tokens_details": [
+              {
+                "modality": "TEXT",
+                "token_count": 32
+              }
+            ],
+            "prompt_token_count": 541,
+            "prompt_tokens_details": [
+              {
+                "modality": "TEXT",
+                "token_count": 541
+              }
+            ],
+            "thoughts_token_count": 47,
+            "total_token_count": 620,
+            "traffic_type": "ON_DEMAND"
+          },
+          "invocation_id": "e-2396b464-cb56-4a1c-8830-981d736aa780",
+          "author": "trip_concierge",
+          "actions": {
+            "state_delta": {},
+            "artifact_delta": {},
+            "requested_auth_configs": {},
+            "requested_tool_confirmations": {}
+          },
+          "node_info": {
+            "path": "trip_concierge@1"
+          },
+          "id": "3ae95828-5e6f-4f46-8da0-37795ee945e9",
+          "timestamp": 1792307851.848034
+        }
+      ],
+      "last_update_time": 1792307851.848034
+    }
+  }
 }
