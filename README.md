@@ -1,5 +1,8 @@
 # Same agent, two telemetry dictionaries
 
+> **Advent of Agents · Season 3 · Day 22 ("Observability & OpenTelemetry Tracing")**
+> Companion repository and trace comparison app for [Advent of Agents](https://adventofagents.com/) Day 22: *"Can I get an immutable audit trail and latency trace of every tool call and model decision?"* See [`ARTICLE.md`](ARTICLE.md) for the full visual walkthrough.
+
 One tiny trip-concierge agent, written twice (Google ADK and LangGraph), asked the same question on `gemini-3.8-flash`. Both write OpenTelemetry. This repo saves what each one writes as plain JSON, and ships a small browser app where you **drop any trace files** (yours or these) and see what is the same and what is different.
 
 **The answer in one line:** both produce the same tree of spans (ids, parents, timestamps). The differences are the **names of the attributes** (`gen_ai.*` vs `openinference.*` / `llm.*`), **where the words go** (a separate, opt-in event vs on the span), and a few **traps** (the same "output tokens" name means different things).
@@ -39,7 +42,9 @@ Nothing is sent anywhere except the model calls: the exporters write to memory, 
 | `adk_agent/agent.py` | the ADK agent (also runs in `adk web .`) |
 | `langgraph_agent.py` | the LangGraph agent, with a checkpointer so it has a session too |
 | `capture.py` | runs one agent, saves trace, events and session as JSON |
+| `genai_bridge.py` | 15-line OpenTelemetry `SpanProcessor` that bridges OpenInference attributes onto `gen_ai.*` so Agent Platform's Session view works for LangGraph |
 | `app/template.html`, `build_app.py` | the drop-your-traces app (one static HTML file, no dependencies) |
+| `ARTICLE.md` | the full Developer Community article with side-by-side diagrams and console walkthrough |
 
 ## The app
 
@@ -166,3 +171,38 @@ Same goal (observable agents without vendor lock-in), different audience (operat
 ## 7. Then, deployed
 
 The same ADK agent deployed to Agent Runtime writes the same spans to Cloud Trace, stamped with the deployment (`cloud.resource_id = …/reasoningEngines/<id>`, `cloud.platform = gcp.agent_engine`). Export a trace from BigQuery (`_AllSpans`) and drop it in the app next to the local one. With `EVENT_ONLY`, the words land in the agent's own log (`reasoning_engine_stdout`), one entry per model call, labeled `event.name = gen_ai.client.inference.operation.details`, linked to the span by trace id and span id.
+
+## 8. Making LangGraph light up in Agent Platform's Session view (`genai_bridge.py`)
+
+When you deploy both agents to Agent Runtime (`LanggraphAgent(..., enable_tracing=True)` vs `AdkApp`), the Cloud console's **Traces › Session view** groups spans by `gen_ai.conversation.id` and sums `gen_ai.usage.input_tokens` + `gen_ai.usage.output_tokens` on `gen_ai.operation.name = "generate_content"` spans.
+
+Because `LanggraphAgent` uses `openinference-instrumentation-langchain` out of the box, its spans carry `session.id` and `llm.token_count.*` instead, so **Session view** shows *"No sessions in the selected time range"* even though **Trace view** lists every trace.
+
+You can fix this either **at rest** (with the BigQuery SQL view in Day 22 that `COALESCE`s both dictionaries) or **at the source** by calling `install_genai_bridge()` from [`genai_bridge.py`](genai_bridge.py) inside `LanggraphAgent`'s `model_builder`:
+
+```python
+from langchain_google_vertexai import ChatVertexAI
+from vertexai.agent_engines import LanggraphAgent
+from genai_bridge import install_genai_bridge
+
+def bridged_model_builder(model_name: str, *, project: str, location: str, model_kwargs=None):
+    install_genai_bridge()
+    return ChatVertexAI(model_name=model_name, project=project, location="global", temperature=0, **(model_kwargs or {}))
+
+agent = LanggraphAgent(
+    model="gemini-3.8-flash",
+    tools=[get_weather, get_events, convert_currency],
+    model_builder=bridged_model_builder,
+    runnable_kwargs={"prompt": INSTRUCTION},
+    enable_tracing=True,
+)
+```
+
+`GenAIBridgeSpanProcessor` keeps every OpenInference attribute intact and stamps `gen_ai.conversation.id`, `gen_ai.operation.name`, and `gen_ai.usage.*` before export, so Agent Platform's Session view populates sessions, model calls, tool calls, and token totals for LangGraph too.
+
+## License
+
+Copyright 2026 Google LLC. Licensed under the [Apache License, Version 2.0](LICENSE).
+
+*This is not an officially supported Google product. This project is not eligible for the [Google Open Source Software Vulnerability Rewards Program](https://bughunters.google.com/open-source-security).*
+
