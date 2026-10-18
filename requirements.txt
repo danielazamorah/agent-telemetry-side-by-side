@@ -7,3 +7,4 @@ langgraph-checkpoint>=2
 openinference-instrumentation-google-adk==1.0.4
 openinference-instrumentation-langchain==0.1.79
 opentelemetry-sdk>=1.42
+anthropic[vertex]>=1.13

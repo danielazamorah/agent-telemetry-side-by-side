@@ -19,6 +19,7 @@ export GOOGLE_CLOUD_LOCATION=global        # Gemini 3.x is served from the globa
 python capture.py adk                      # ADK, built-in OpenTelemetry
 python capture.py langgraph                # LangGraph + OpenInference instrumentor
 python capture.py adk-openinference        # bonus: the same ADK agent, OpenInference instrumentor
+python capture.py adk --model claude-sonnet-5-5      # same harness, another provider (Claude on Vertex AI)
 python build_app.py                        # app/index.html with the two samples embedded
 open app/index.html                        # or: python -m http.server -d app
 ```
@@ -42,7 +43,7 @@ Nothing is sent anywhere except the model calls: the exporters write to memory, 
 
 ## The app
 
-Drop JSON files on it, or press "Load the ADK vs LangGraph samples". It reads:
+Drop JSON files on it, or pick a sample set: harness (ADK vs LangGraph), provider (Gemini vs Claude, per harness), or dictionary (ADK native vs ADK + OpenInference). It reads:
 - this repo's `capture.py` output
 - OTLP JSON (`resourceSpans`, `resourceLogs`), e.g. from an OpenTelemetry Collector file exporter
 - OpenTelemetry console / JSONL span dumps
@@ -119,7 +120,25 @@ What the real data shows:
 - **Tokens in: 276 vs 218 for the same question.** ADK adds its own system text to the prompt ("You are an agent. Your internal name is…").
 - **The framework does not decide the dictionary, the instrumentor does.** The same ADK agent with `GoogleADKInstrumentor()` writes OpenInference (`traces/adk-openinference__parallel.json`).
 
-## 4. Traces vs session data
+## 4. Same harness, different model (Gemini 3.8 Flash vs Claude Sonnet 5.5)
+
+`python capture.py adk --model claude-sonnet-5-5` (and `langgraph`) runs the same agent on Claude through Vertex AI: ADK's `Claude` class, LangChain's `ChatAnthropicVertex`. Claude must be enabled in the project's Model Garden (check with a one-line call before blaming the code: a 404 means "not enabled here").
+
+**The harness decides the shape and the dictionary; the provider only changes values and optional keys.**
+
+| | ADK: Gemini vs Claude | LangGraph: Gemini vs Claude |
+| :-- | :-- | :-- |
+| span tree | identical, 9 spans; only `generate_content <model>` changes | identical, 17 spans; `ChatVertexAI` becomes `ChatAnthropicVertex` |
+| dictionary | `gen_ai.*` both times | OpenInference both times |
+| provider on the span | **not declared at all**: `gen_ai.system` = `gcp.vertex.agent` (the harness, not the provider) | `llm.provider` = `google` vs `anthropicvertex` (free-form) |
+| why it stopped | `["stop"]` both (ADK normalizes) | `STOP` vs `tool_use` (provider vocabulary leaks through) |
+| tokens in, first call | 276 vs 851 | 218 vs 755 |
+| thinking tokens | 134 vs 0 | 114 vs absent |
+| keys only one reports | Claude adds `gen_ai.usage.cache_read.input_tokens`, `cache_creation.input_tokens` | Gemini adds `llm.system`, `llm.token_count.total`, `llm.function_call` |
+
+Takeaways: group spend by provider from the **model name**, not from a provider attribute; never compare raw token counts across providers (tokenizers and tool-schema formatting differ about 3x here), compare cost; and normalize `finish_reason` values if you alert on them.
+
+## 5. Traces vs session data
 
 | | Trace (telemetry) | Session (application state) |
 | :-- | :-- | :-- |
@@ -133,7 +152,7 @@ Same run, both records: ADK's session has 6 items (user text, two tool calls, tw
 
 ![app bottom](docs/app_bottom.jpg)
 
-## 5. Why two dictionaries exist
+## 6. Why two dictionaries exist
 
 | | OpenTelemetry GenAI conventions | OpenInference |
 | :-- | :-- | :-- |
@@ -144,6 +163,6 @@ Same run, both records: ADK's session has 6 items (user text, two tool calls, tw
 
 Same goal (observable agents without vendor lock-in), different audience (operations vs AI quality). Pick what your tools read, or keep both and normalize them at rest, for example with a SQL view in BigQuery.
 
-## 6. Then, deployed
+## 7. Then, deployed
 
 The same ADK agent deployed to Agent Runtime writes the same spans to Cloud Trace, stamped with the deployment (`cloud.resource_id = …/reasoningEngines/<id>`, `cloud.platform = gcp.agent_engine`). Export a trace from BigQuery (`_AllSpans`) and drop it in the app next to the local one. With `EVENT_ONLY`, the words land in the agent's own log (`reasoning_engine_stdout`), one entry per model call, labeled `event.name = gen_ai.client.inference.operation.details`, linked to the span by trace id and span id.

@@ -14,12 +14,26 @@ from langgraph.prebuilt import create_react_agent
 
 from tools import INSTRUCTION, convert_currency, get_events, get_weather
 
-llm = ChatVertexAI(
-    model_name=os.environ.get("MODEL", "gemini-3.8-flash"),
-    project=os.environ["GOOGLE_CLOUD_PROJECT"],
-    location=os.environ.get("GOOGLE_CLOUD_LOCATION", "global"),
-    temperature=0,
-)
+MODEL = os.environ.get("MODEL", "gemini-3.8-flash")
+
+if MODEL.startswith("claude"):
+    # Same harness, different provider: Claude on Vertex AI through the Anthropic SDK.
+    from langchain_google_vertexai.model_garden import ChatAnthropicVertex
+
+    llm = ChatAnthropicVertex(
+        model_name=MODEL,
+        project=os.environ["GOOGLE_CLOUD_PROJECT"],
+        location=os.environ.get("CLAUDE_LOCATION", os.environ.get("GOOGLE_CLOUD_LOCATION", "global")),
+        # no temperature: the current Anthropic SDK's messages.create() no longer accepts it
+        max_tokens=1024,
+    )
+else:
+    llm = ChatVertexAI(
+        model_name=MODEL,
+        project=os.environ["GOOGLE_CLOUD_PROJECT"],
+        location=os.environ.get("GOOGLE_CLOUD_LOCATION", "global"),
+        temperature=0,
+    )
 
 agent = create_react_agent(
     llm,

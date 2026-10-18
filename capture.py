@@ -4,6 +4,7 @@
     python capture.py langgraph            # LangGraph + OpenInference  -> OpenInference conventions
     python capture.py adk-openinference    # bonus: the SAME ADK agent with the OpenInference instrumentor
     python capture.py adk --question serial
+    python capture.py adk --model claude-sonnet-5-5      # same harness, another provider
 
 Writes traces/<agent>__<question>.json with:
     spans   one object per span: name, ids, parent, start/end, duration, attributes
@@ -142,7 +143,11 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("agent", choices=["adk", "langgraph", "adk-openinference"])
     parser.add_argument("--question", choices=list(QUESTIONS), default="parallel")
+    parser.add_argument("--model", default=None, help="Gemini (default) or a Claude model on Vertex AI")
     args = parser.parse_args()
+    if args.model:
+        os.environ["MODEL"] = args.model
+    model = os.environ.get("MODEL", "gemini-3.8-flash")
 
     provider = setup_otel(f"trip-concierge-{args.agent}")
     question = QUESTIONS[args.question]
@@ -162,10 +167,11 @@ def main() -> None:
 
     spans = sorted((simplify(s) for s in span_store.get_finished_spans()), key=lambda s: s["start_time_ns"])
     events = [simplify_log(r) for r in log_store.get_finished_logs()]
-    out = HERE / "traces" / f"{args.agent}__{args.question}.json"
+    suffix = "" if model.startswith("gemini") else f"__{model}"
+    out = HERE / "traces" / f"{args.agent}__{args.question}{suffix}.json"
     out.parent.mkdir(exist_ok=True)
     out.write_text(json.dumps(
-        {"agent": args.agent, "model": os.environ.get("MODEL", "gemini-3.8-flash"), "question": question,
+        {"agent": args.agent, "model": model, "question": question,
          "answer": answer, "spans": spans, "events": events, "session": SESSION},
         indent=2, default=str,
     ))

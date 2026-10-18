@@ -72,7 +72,7 @@ code{font-family:"Roboto Mono",Menlo,monospace;font-size:12.5px;background:#eef1
 
 <div class="drop" id="drop">
   <div><b>Drop JSON files here</b> or <label class="btn primary" for="file">Choose files</label><input id="file" type="file" accept=".json,.jsonl,.ndjson,application/json" multiple hidden></div>
-  <button class="btn" id="samples">Load the ADK vs LangGraph samples</button>
+  <select class="btn" id="sampleset"></select><button class="btn" id="samples">Load samples</button>
   <button class="btn" id="clear">Clear</button>
   <div class="hint">Reads: this repo's <code>capture.py</code> output · OTLP JSON (<code>resourceSpans</code> / <code>resourceLogs</code>) · OpenTelemetry console or JSONL span dumps · BigQuery exports of <code>_AllSpans</code> (JSON or JSONL) · Cloud Trace API traces (<code>spans[].labels</code>) · ADK session JSON (<code>events[]</code>) · LangGraph checkpoint state (<code>values.messages</code>). Files with spans become a trace; a session file is attached to the trace with the same name prefix, or to the last trace.</div>
 </div>
@@ -86,11 +86,14 @@ code{font-family:"Roboto Mono",Menlo,monospace;font-size:12.5px;background:#eef1
 "use strict";
 const KIND_COLOR={AGENT:"#7c4dff",LLM:"#1a73e8",TOOL:"#1e8e3e",CHAIN:"#9aa0a6"};
 const FACTS=[
+  {id:"provider",label:"which provider",color:"#1a73e8",genai:["gen_ai.provider.name"],oi:["llm.provider"]},
   {id:"kind",label:"what kind of step",color:"#7c4dff",genai:["gen_ai.operation.name"],oi:["openinference.span.kind"]},
   {id:"model",label:"which model",color:"#1a73e8",genai:["gen_ai.request.model","gen_ai.response.model"],oi:["llm.model_name"]},
   {id:"tin",label:"tokens in",color:"#1e8e3e",genai:["gen_ai.usage.input_tokens","gen_ai.usage.prompt_tokens"],oi:["llm.token_count.prompt"]},
   {id:"tout",label:"tokens out",color:"#1e8e3e",genai:["gen_ai.usage.output_tokens","gen_ai.usage.completion_tokens"],oi:["llm.token_count.completion"]},
   {id:"think",label:"thinking tokens",color:"#1e8e3e",genai:["gen_ai.usage.reasoning.output_tokens"],oi:["llm.token_count.completion_details.reasoning"]},
+  {id:"cache",label:"cached tokens",color:"#1e8e3e",genai:["gen_ai.usage.cache_read.input_tokens"],oi:["llm.token_count.prompt_details.cache_read"]},
+  {id:"finish",label:"why it stopped",color:"#7c4dff",genai:["gen_ai.response.finish_reasons"],oi:["llm.finish_reason"]},
   {id:"conv",label:"which conversation",color:"#b06000",genai:["gen_ai.conversation.id","gcp.vertex.agent.session_id"],oi:["session.id"]},
   {id:"user",label:"which user",color:"#b06000",genai:["user.id","enduser.id"],oi:["user.id"]},
   {id:"in",label:"what went in",color:"#c5221f",genai:["gen_ai.input.messages","gcp.vertex.agent.llm_request"],oi:["input.value"]},
@@ -196,6 +199,9 @@ function analyze(t){
   return Object.assign(t,{main,children,mainIds,llmLeaves,tin,tout,think,dialectAll:d,scopes,t0,t1,model,tools,overlap,otherTraces:traces.length-1,resource:res?res.resource:{}});
 }
 function framework(t){const s=t.scopes.join(" ");if(/google_adk/.test(s))return "ADK + OpenInference";if(/gcp\.vertex\.agent/.test(s))return "ADK";if(/langchain/.test(s))return "LangChain / LangGraph";if(/google_genai/.test(s))return "google-genai SDK";if(t.meta.agent)return t.meta.agent;return s||"unknown"}
+function providerOf(t){const ms=firstModelSpan(t);const a=ms?ms.attrs:{};const p=a["gen_ai.provider.name"]||a["llm.provider"];const m=(t.model||"").toLowerCase();
+  const inferred=/claude|anthropic/.test(m)?"Anthropic":/gemini|gemma/.test(m)?"Google":/gpt|o\d|openai/.test(m)?"OpenAI":/llama|meta/.test(m)?"Meta":"";
+  return {declared:p||null,inferred}}
 function firstModelSpan(t){return t.llmLeaves[0]||t.main.find(s=>s.kind==="LLM")}
 function findFact(t,f,ms){
   const keys=[...f.oi,...f.genai];
@@ -217,7 +223,7 @@ function sessionItems(sess){
     if(p.function_response||p.functionResponse){const fr=p.function_response||p.functionResponse;out.push({role,type:"tool result",text:`${fr.name} → ${short(fr.response,140)}`})}
   })});return out}
   const msgs=(d.values&&d.values.messages)||[];msgs.forEach(m=>{const k=m.data||m.kwargs||m;const type=m.type||k.type;let content=k.content;
-    if(Array.isArray(content))content=content.map(x=>typeof x==="string"?x:(x.text||"")).join(" ");
+    if(Array.isArray(content))content=content.map(x=>typeof x==="string"?x:(x.text||"")).join(" ").trim();
     const role={human:"user",ai:"model",tool:"tool",system:"system"}[type]||type;
     if(type==="ai"&&(k.tool_calls||[]).length)(k.tool_calls||[]).forEach(tc=>out.push({role,type:"tool call",text:`${tc.name}(${JSON.stringify(tc.args||{})})`}));
     if(content)out.push({role,type:type==="tool"?"tool result":"text",text:type==="tool"?`${k.name} → ${short(content,140)}`:content});
@@ -251,7 +257,7 @@ function render(){
   // 1 overview
   h+=`<div class="eyebrow">1 · What you loaded</div><h2>One card per trace</h2><div class="grid" style="${cols}">`+TRACES.map(t=>`
     <div class="card"><h3>${esc(t.name)}</h3>
-      <div class="meta"><span class="pill">${esc(framework(t))}</span><span class="pill ${t.dialectAll}">${DLABEL[t.dialectAll]}</span>${t.model?`<span class="pill">${esc(t.model)}</span>`:""}${t.resource["cloud.platform"]?`<span class="pill">${esc(t.resource["cloud.platform"])}</span>`:""}</div>
+      <div class="meta"><span class="pill">${esc(framework(t))}</span><span class="pill ${t.dialectAll}">${DLABEL[t.dialectAll]}</span>${t.model?`<span class="pill">${esc(t.model)}</span>`:""}${(()=>{const p=providerOf(t);return p.inferred?`<span class="pill" title="${p.declared?"declared on the span: "+esc(p.declared):"not declared on the spans; inferred from the model name"}">${esc(p.inferred)}${p.declared?"":" (inferred)"}</span>`:""})()}${t.resource["cloud.platform"]?`<span class="pill">${esc(t.resource["cloud.platform"])}</span>`:""}</div>
       ${t.meta.question?`<div class="note">“${esc(t.meta.question)}”</div>`:""}
       <div class="stat"><div><b>${t.main.length}</b><span>spans</span></div><div><b>${Math.round(t.t1-t.t0).toLocaleString()} ms</b><span>end to end</span></div><div><b>${t.tin}/${t.tout}</b><span>tokens in/out${t.think?` (${t.think} thinking)`:""}</span></div><div><b>${t.tools.length}${t.overlap?" ∥":""}</b><span>tool calls${t.overlap?" (parallel)":""}</span></div></div>
       ${t.otherTraces?`<div class="note">File had ${t.otherTraces+1} traces; showing the largest.</div>`:""}
@@ -272,6 +278,25 @@ function render(){
   const gThink=TRACES.find(x=>x.llmLeaves.some(s=>"gen_ai.usage.reasoning.output_tokens" in s.attrs)),oThink=TRACES.find(x=>x.llmLeaves.some(s=>"llm.token_count.completion_details.reasoning" in s.attrs));
   if(gThink&&oThink){const gs=gThink.llmLeaves.find(s=>"gen_ai.usage.reasoning.output_tokens" in s.attrs),os=oThink.llmLeaves.find(s=>"llm.token_count.completion_details.reasoning" in s.attrs);
     h+=`<div class="box" style="margin-top:16px;border-color:#fde293;background:#fffbea"><h4>Same name, different meaning: output tokens</h4><p><code>gen_ai.usage.output_tokens</code> = <b>${gs.attrs["gen_ai.usage.output_tokens"]}</b> includes the model's thinking (<code>gen_ai.usage.reasoning.output_tokens</code> = ${gs.attrs["gen_ai.usage.reasoning.output_tokens"]}). <code>llm.token_count.completion</code> = <b>${os.attrs["llm.token_count.completion"]}</b> is the visible answer only; thinking is in <code>llm.token_count.completion_details.reasoning</code> = ${os.attrs["llm.token_count.completion_details.reasoning"]}. Add them up naively and the cost per agent is wrong. The cards above normalize both to "everything the model generated".</p></div>`}
+  // same harness, different model
+  for(let i=0;i<TRACES.length;i++)for(let j=i+1;j<TRACES.length;j++){const A=TRACES[i],B=TRACES[j];
+    if(framework(A)!==framework(B)||!A.model||!B.model||A.model===B.model)continue;
+    const norm=t=>t.main.map(s=>s.name.replace(t.model,"<model>").replace(/^Chat[A-Za-z]+$/,"<chat model class>"));
+    const sameShape=JSON.stringify(norm(A))===JSON.stringify(norm(B));
+    const ka=new Set(Object.keys((firstModelSpan(A)||{attrs:{}}).attrs).filter(k=>!/^llm\.(input|output)_messages|^llm\.tools\./.test(k)));
+    const kb=new Set(Object.keys((firstModelSpan(B)||{attrs:{}}).attrs).filter(k=>!/^llm\.(input|output)_messages|^llm\.tools\./.test(k)));
+    const onlyA=[...ka].filter(k=>!kb.has(k)),onlyB=[...kb].filter(k=>!ka.has(k));
+    const fa=findFact(A,FACTS.find(f=>f.id==="finish"),firstModelSpan(A)),fb=findFact(B,FACTS.find(f=>f.id==="finish"),firstModelSpan(B));
+    const pa=providerOf(A),pb=providerOf(B);
+    const ta=(firstModelSpan(A)||{attrs:{}}).attrs,tb=(firstModelSpan(B)||{attrs:{}}).attrs;
+    const tinA=Number(ta["gen_ai.usage.input_tokens"]??ta["llm.token_count.prompt"]),tinB=Number(tb["gen_ai.usage.input_tokens"]??tb["llm.token_count.prompt"]);
+    h+=`<div class="box" style="margin-top:16px;border-color:#c6dafc;background:#f4f8fe"><h4>Same harness (${esc(framework(A))}), different model: ${esc(A.model)} vs ${esc(B.model)}</h4>
+      <p><b>Shape:</b> ${sameShape?"identical span tree; only the model name inside span names changes.":"the span trees differ (see section 2)."} <b>Dictionary:</b> the same, because the harness and its instrumentor decide it.</p>
+      <p><b>Provider on the spans:</b> ${pa.declared||pb.declared?`<code>${esc(pa.declared||"none")}</code> vs <code>${esc(pb.declared||"none")}</code> (free-form values, not a fixed list).`:"not declared at all; you only know it from the model name."}</p>
+      <p><b>Why it stopped:</b> <code>${esc(short(fa.v??"n/a",30))}</code> vs <code>${esc(short(fb.v??"n/a",30))}</code>${String(fa.v)!==String(fb.v)?" (each provider's own vocabulary leaks through)":""}.</p>
+      ${!isNaN(tinA)&&!isNaN(tinB)?`<p><b>Tokens in for the same first call:</b> ${tinA} vs ${tinB}. Tokenizers and tool-schema formatting differ per provider, so raw token counts are not comparable across models; compare cost, not tokens.</p>`:""}
+      ${onlyA.length||onlyB.length?`<p><b>Keys only one of them reports:</b> ${onlyA.length?`${esc(A.model)}: ${onlyA.map(k=>`<code>${esc(k)}</code>`).join(" ")}`:""} ${onlyB.length?`${onlyA.length?"· ":""}${esc(B.model)}: ${onlyB.map(k=>`<code>${esc(k)}</code>`).join(" ")}`:""}</p>`:""}
+    </div>`}
   // 6 traces vs session
   const withS=TRACES.filter(t=>t.session);
   h+=`<div class="eyebrow">6 · Traces vs session data</div><h2>How it ran vs what was said</h2>
@@ -297,7 +322,10 @@ const drop=document.getElementById("drop");
 ["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("over")}));
 drop.addEventListener("drop",e=>loadFiles(e.dataTransfer.files));
 document.getElementById("clear").onclick=()=>{TRACES=[];document.getElementById("err").textContent="";render()};
-document.getElementById("samples").onclick=()=>{TRACES=[];const S=JSON.parse(document.getElementById("samples-data").textContent||"{}");Object.entries(S).forEach(([n,d])=>window.loadText(n,JSON.stringify(d)))};
+const SETS=JSON.parse(document.getElementById("samples-data").textContent||"{}");
+const sel=document.getElementById("sampleset");sel.innerHTML=Object.keys(SETS).map(k=>`<option>${esc(k)}</option>`).join("");
+const want=decodeURIComponent((location.hash.match(/set=([^&]+)/)||[])[1]||"");if(want&&SETS[want])sel.value=want;
+document.getElementById("samples").onclick=()=>{TRACES=[];document.getElementById("err").textContent="";Object.entries(SETS[sel.value]||{}).forEach(([n,d])=>window.loadText(n,JSON.stringify(d)))};
 render();
 if(location.hash.includes("samples"))document.getElementById("samples").click();
 </script>
