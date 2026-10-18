@@ -1,0 +1,497 @@
+{
+  "agent": "adk",
+  "question": "I'm flying to Lisbon this weekend. What's the weather, and what's on?",
+  "answer": "Lisbon will have lovely weather this weekend, with sunny skies reaching 22\u00b0C on Saturday and light clouds at 20\u00b0C on Sunday. You can enjoy a Fado night in Alfama for 35 EUR while you're there.",
+  "spans": [
+    {
+      "name": "invocation",
+      "trace_id": "f17461e705dd96294b80ffa57c2b290b",
+      "span_id": "1137103f80ae3954",
+      "parent_span_id": null,
+      "start_time_ns": 1792302090646244429,
+      "end_time_ns": 1792302094277832628,
+      "duration_ms": 3631.6,
+      "instrumentation": "gcp.vertex.agent",
+      "attributes": {},
+      "status": "UNSET"
+    },
+    {
+      "name": "invoke_agent trip_concierge",
+      "trace_id": "f17461e705dd96294b80ffa57c2b290b",
+      "span_id": "4fe87a13e11947f3",
+      "parent_span_id": "1137103f80ae3954",
+      "start_time_ns": 1792302090650058733,
+      "end_time_ns": 1792302094257641542,
+      "duration_ms": 3607.6,
+      "instrumentation": "gcp.vertex.agent",
+      "attributes": {
+        "gen_ai.operation.name": "invoke_agent",
+        "gen_ai.agent.description": "",
+        "gen_ai.agent.name": "trip_concierge",
+        "gen_ai.conversation.id": "b54d2a4c-1559-422b-b317-99003fde3920"
+      },
+      "status": "UNSET"
+    },
+    {
+      "name": "call_llm",
+      "trace_id": "f17461e705dd96294b80ffa57c2b290b",
+      "span_id": "b6aca9c42d97adf7",
+      "parent_span_id": "4fe87a13e11947f3",
+      "start_time_ns": 1792302090722718001,
+      "end_time_ns": 1792302093358634638,
+      "duration_ms": 2635.9,
+      "instrumentation": "gcp.vertex.agent",
+      "attributes": {
+        "gen_ai.system": "gcp.vertex.agent",
+        "gen_ai.request.model": "gemini-3.1-flash-lite",
+        "gcp.vertex.agent.invocation_id": "e-bcfa7088-7724-40c8-a256-9df079611404",
+        "gcp.vertex.agent.session_id": "b54d2a4c-1559-422b-b317-99003fde3920",
+        "gcp.vertex.agent.event_id": "75ee6f67-d5df-49dd-b0ab-8c38e0c9ce00",
+        "gcp.vertex.agent.llm_request": "{}",
+        "gcp.vertex.agent.llm_response": "{}",
+        "gen_ai.usage.input_tokens": 276,
+        "gen_ai.usage.output_tokens": 34,
+        "gen_ai.response.finish_reasons": [
+          "stop"
+        ]
+      },
+      "status": "UNSET"
+    },
+    {
+      "name": "generate_content gemini-3.1-flash-lite",
+      "trace_id": "f17461e705dd96294b80ffa57c2b290b",
+      "span_id": "a329f93a897aa358",
+      "parent_span_id": "b6aca9c42d97adf7",
+      "start_time_ns": 1792302090723057845,
+      "end_time_ns": 1792302092453452642,
+      "duration_ms": 1730.4,
+      "instrumentation": "gcp.vertex.agent",
+      "attributes": {
+        "gen_ai.operation.name": "generate_content",
+        "gen_ai.request.model": "gemini-3.1-flash-lite",
+        "gen_ai.agent.name": "trip_concierge",
+        "gen_ai.conversation.id": "b54d2a4c-1559-422b-b317-99003fde3920",
+        "gcp.vertex.agent.event_id": "75ee6f67-d5df-49dd-b0ab-8c38e0c9ce00",
+        "gcp.vertex.agent.invocation_id": "e-bcfa7088-7724-40c8-a256-9df079611404",
+        "gen_ai.response.finish_reasons": [
+          "stop"
+        ],
+        "gen_ai.usage.input_tokens": 276,
+        "gen_ai.usage.output_tokens": 34,
+        "gen_ai.tool.definitions": "[{\"name\":\"get_weather\",\"description\":\"Returns the weekend weather forecast for a city.\\n\\nArgs:\\n    city: City name, for example \\\"Lisbon\\\".\",\"parameters\":null,\"type\":\"function\"},{\"name\":\"get_events\",\"description\":\"Returns events in a city this weekend, with ticket prices.\\n\\nArgs:\\n    city: City name, for example \\\"Lisbon\\\".\",\"parameters\":null,\"type\":\"function\"},{\"name\":\"convert_currency\",\"description\":\"Converts an amount between currencies.\\n\\nArgs:\\n    amount: Amount to convert.\\n    from_currency: ISO code, for example \\\"EUR\\\".\\n    to_currency: ISO code, for example \\\"USD\\\".\",\"parameters\":null,\"type\":\"function\"}]"
+      },
+      "status": "UNSET"
+    },
+    {
+      "name": "execute_tool get_weather",
+      "trace_id": "f17461e705dd96294b80ffa57c2b290b",
+      "span_id": "4023c4e384179579",
+      "parent_span_id": "4fe87a13e11947f3",
+      "start_time_ns": 1792302092454576714,
+      "end_time_ns": 1792302093159977808,
+      "duration_ms": 705.4,
+      "instrumentation": "gcp.vertex.agent",
+      "attributes": {
+        "gen_ai.operation.name": "execute_tool",
+        "gen_ai.tool.description": "Returns the weekend weather forecast for a city.\n\nArgs:\n    city: City name, for example \"Lisbon\".",
+        "gen_ai.tool.name": "get_weather",
+        "gen_ai.tool.type": "FunctionTool",
+        "gen_ai.agent.name": "trip_concierge",
+        "gcp.vertex.agent.llm_request": "{}",
+        "gcp.vertex.agent.llm_response": "{}",
+        "gcp.vertex.agent.tool_call_args": "{}",
+        "gen_ai.tool.call.id": "call_362564",
+        "gcp.vertex.agent.event_id": "cb0715b1-257e-4448-88e7-cc2c33d647e0",
+        "gcp.vertex.agent.tool_response": "{}"
+      },
+      "status": "UNSET"
+    },
+    {
+      "name": "execute_tool get_events",
+      "trace_id": "f17461e705dd96294b80ffa57c2b290b",
+      "span_id": "6f811fbdb9ad00a0",
+      "parent_span_id": "4fe87a13e11947f3",
+      "start_time_ns": 1792302092455111974,
+      "end_time_ns": 1792302093357167389,
+      "duration_ms": 902.1,
+      "instrumentation": "gcp.vertex.agent",
+      "attributes": {
+        "gen_ai.operation.name": "execute_tool",
+        "gen_ai.tool.description": "Returns events in a city this weekend, with ticket prices.\n\nArgs:\n    city: City name, for example \"Lisbon\".",
+        "gen_ai.tool.name": "get_events",
+        "gen_ai.tool.type": "FunctionTool",
+        "gen_ai.agent.name": "trip_concierge",
+        "gcp.vertex.agent.llm_request": "{}",
+        "gcp.vertex.agent.llm_response": "{}",
+        "gcp.vertex.agent.tool_call_args": "{}",
+        "gen_ai.tool.call.id": "call_362565",
+        "gcp.vertex.agent.event_id": "ed316a50-5a2b-498a-8b25-a1f3f6303ce7",
+        "gcp.vertex.agent.tool_response": "{}"
+      },
+      "status": "UNSET"
+    },
+    {
+      "name": "execute_tool (merged)",
+      "trace_id": "f17461e705dd96294b80ffa57c2b290b",
+      "span_id": "2956076c0ba53ffe",
+      "parent_span_id": "4fe87a13e11947f3",
+      "start_time_ns": 1792302093357758562,
+      "end_time_ns": 1792302093357880922,
+      "duration_ms": 0.1,
+      "instrumentation": "gcp.vertex.agent",
+      "attributes": {
+        "gen_ai.operation.name": "execute_tool",
+        "gen_ai.tool.name": "(merged tools)",
+        "gen_ai.tool.description": "(merged tools)",
+        "gen_ai.tool.call.id": "f53faf62-3537-45e3-858d-82134f3ee5b2",
+        "gcp.vertex.agent.tool_call_args": "N/A",
+        "gcp.vertex.agent.event_id": "f53faf62-3537-45e3-858d-82134f3ee5b2",
+        "gcp.vertex.agent.tool_response": "{}",
+        "gcp.vertex.agent.llm_request": "{}",
+        "gcp.vertex.agent.llm_response": "{}"
+      },
+      "status": "UNSET"
+    },
+    {
+      "name": "call_llm",
+      "trace_id": "f17461e705dd96294b80ffa57c2b290b",
+      "span_id": "62ff7fe5666929aa",
+      "parent_span_id": "4fe87a13e11947f3",
+      "start_time_ns": 1792302093361002905,
+      "end_time_ns": 1792302094257473993,
+      "duration_ms": 896.5,
+      "instrumentation": "gcp.vertex.agent",
+      "attributes": {
+        "gen_ai.system": "gcp.vertex.agent",
+        "gen_ai.request.model": "gemini-3.1-flash-lite",
+        "gcp.vertex.agent.invocation_id": "e-bcfa7088-7724-40c8-a256-9df079611404",
+        "gcp.vertex.agent.session_id": "b54d2a4c-1559-422b-b317-99003fde3920",
+        "gcp.vertex.agent.event_id": "fd029941-c7a5-4f0a-9a6d-3a2208d50aa7",
+        "gcp.vertex.agent.llm_request": "{}",
+        "gcp.vertex.agent.llm_response": "{}",
+        "gen_ai.usage.input_tokens": 344,
+        "gen_ai.usage.output_tokens": 53,
+        "gen_ai.response.finish_reasons": [
+          "stop"
+        ]
+      },
+      "status": "UNSET"
+    },
+    {
+      "name": "generate_content gemini-3.1-flash-lite",
+      "trace_id": "f17461e705dd96294b80ffa57c2b290b",
+      "span_id": "f0f3bf59477290a0",
+      "parent_span_id": "62ff7fe5666929aa",
+      "start_time_ns": 1792302093361267547,
+      "end_time_ns": 1792302094256462433,
+      "duration_ms": 895.2,
+      "instrumentation": "gcp.vertex.agent",
+      "attributes": {
+        "gen_ai.operation.name": "generate_content",
+        "gen_ai.request.model": "gemini-3.1-flash-lite",
+        "gen_ai.agent.name": "trip_concierge",
+        "gen_ai.conversation.id": "b54d2a4c-1559-422b-b317-99003fde3920",
+        "gcp.vertex.agent.event_id": "fd029941-c7a5-4f0a-9a6d-3a2208d50aa7",
+        "gcp.vertex.agent.invocation_id": "e-bcfa7088-7724-40c8-a256-9df079611404",
+        "gen_ai.response.finish_reasons": [
+          "stop"
+        ],
+        "gen_ai.usage.input_tokens": 344,
+        "gen_ai.usage.output_tokens": 53,
+        "gen_ai.tool.definitions": "[{\"name\":\"get_weather\",\"description\":\"Returns the weekend weather forecast for a city.\\n\\nArgs:\\n    city: City name, for example \\\"Lisbon\\\".\",\"parameters\":null,\"type\":\"function\"},{\"name\":\"get_events\",\"description\":\"Returns events in a city this weekend, with ticket prices.\\n\\nArgs:\\n    city: City name, for example \\\"Lisbon\\\".\",\"parameters\":null,\"type\":\"function\"},{\"name\":\"convert_currency\",\"description\":\"Converts an amount between currencies.\\n\\nArgs:\\n    amount: Amount to convert.\\n    from_currency: ISO code, for example \\\"EUR\\\".\\n    to_currency: ISO code, for example \\\"USD\\\".\",\"parameters\":null,\"type\":\"function\"}]"
+      },
+      "status": "UNSET"
+    }
+  ],
+  "events": [
+    {
+      "event_name": "gen_ai.client.inference.operation.details",
+      "trace_id": "f17461e705dd96294b80ffa57c2b290b",
+      "span_id": "a329f93a897aa358",
+      "attributes": {
+        "gen_ai.agent.name": "trip_concierge",
+        "gen_ai.conversation.id": "b54d2a4c-1559-422b-b317-99003fde3920",
+        "gcp.vertex.agent.event_id": "75ee6f67-d5df-49dd-b0ab-8c38e0c9ce00",
+        "gcp.vertex.agent.invocation_id": "e-bcfa7088-7724-40c8-a256-9df079611404",
+        "user.id": "ana",
+        "gen_ai.response.finish_reasons": [
+          "stop"
+        ],
+        "gen_ai.usage.input_tokens": 276,
+        "gen_ai.usage.output_tokens": 34,
+        "gen_ai.input.messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "content": "I'm flying to Lisbon this weekend. What's the weather, and what's on?",
+                "type": "text"
+              }
+            ]
+          }
+        ],
+        "gen_ai.system_instructions": [
+          {
+            "content": "You are a trip concierge. Use the tools. When two tools are independent, call them at the same time. Answer in two sentences.\n\nYou are an agent. Your internal name is \"trip_concierge\".",
+            "type": "text"
+          }
+        ],
+        "gen_ai.tool.definitions": [
+          {
+            "name": "get_weather",
+            "description": "Returns the weekend weather forecast for a city.\n\nArgs:\n    city: City name, for example \"Lisbon\".",
+            "parameters": {
+              "properties": {
+                "city": {
+                  "title": "City",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "city"
+              ],
+              "title": "get_weatherParams",
+              "type": "object"
+            },
+            "type": "function"
+          },
+          {
+            "name": "get_events",
+            "description": "Returns events in a city this weekend, with ticket prices.\n\nArgs:\n    city: City name, for example \"Lisbon\".",
+            "parameters": {
+              "properties": {
+                "city": {
+                  "title": "City",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "city"
+              ],
+              "title": "get_eventsParams",
+              "type": "object"
+            },
+            "type": "function"
+          },
+          {
+            "name": "convert_currency",
+            "description": "Converts an amount between currencies.\n\nArgs:\n    amount: Amount to convert.\n    from_currency: ISO code, for example \"EUR\".\n    to_currency: ISO code, for example \"USD\".",
+            "parameters": {
+              "properties": {
+                "amount": {
+                  "title": "Amount",
+                  "type": "number"
+                },
+                "from_currency": {
+                  "title": "From Currency",
+                  "type": "string"
+                },
+                "to_currency": {
+                  "title": "To Currency",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "amount",
+                "from_currency",
+                "to_currency"
+              ],
+              "title": "convert_currencyParams",
+              "type": "object"
+            },
+            "type": "function"
+          }
+        ],
+        "gen_ai.output.messages": [
+          {
+            "role": "assistant",
+            "parts": [
+              {
+                "id": "call_362564",
+                "name": "get_weather",
+                "arguments": {
+                  "city": "Lisbon"
+                },
+                "type": "tool_call"
+              },
+              {
+                "id": "call_362565",
+                "name": "get_events",
+                "arguments": {
+                  "city": "Lisbon"
+                },
+                "type": "tool_call"
+              }
+            ],
+            "finish_reason": "stop"
+          }
+        ]
+      },
+      "body": null
+    },
+    {
+      "event_name": "gen_ai.client.inference.operation.details",
+      "trace_id": "f17461e705dd96294b80ffa57c2b290b",
+      "span_id": "f0f3bf59477290a0",
+      "attributes": {
+        "gen_ai.agent.name": "trip_concierge",
+        "gen_ai.conversation.id": "b54d2a4c-1559-422b-b317-99003fde3920",
+        "gcp.vertex.agent.event_id": "fd029941-c7a5-4f0a-9a6d-3a2208d50aa7",
+        "gcp.vertex.agent.invocation_id": "e-bcfa7088-7724-40c8-a256-9df079611404",
+        "user.id": "ana",
+        "gen_ai.response.finish_reasons": [
+          "stop"
+        ],
+        "gen_ai.usage.input_tokens": 344,
+        "gen_ai.usage.output_tokens": 53,
+        "gen_ai.input.messages": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "content": "I'm flying to Lisbon this weekend. What's the weather, and what's on?",
+                "type": "text"
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "parts": [
+              {
+                "id": "call_362564",
+                "name": "get_weather",
+                "arguments": {
+                  "city": "Lisbon"
+                },
+                "type": "tool_call"
+              },
+              {
+                "id": "call_362565",
+                "name": "get_events",
+                "arguments": {
+                  "city": "Lisbon"
+                },
+                "type": "tool_call"
+              }
+            ]
+          },
+          {
+            "role": "user",
+            "parts": [
+              {
+                "id": "call_362564",
+                "response": {
+                  "city": "Lisbon",
+                  "forecast": {
+                    "saturday": "22C, sunny",
+                    "sunday": "20C, light clouds"
+                  }
+                },
+                "type": "tool_call_response"
+              },
+              {
+                "id": "call_362565",
+                "response": {
+                  "city": "Lisbon",
+                  "events": [
+                    {
+                      "name": "Fado night at Alfama",
+                      "price": 35.0,
+                      "currency": "EUR"
+                    }
+                  ]
+                },
+                "type": "tool_call_response"
+              }
+            ]
+          }
+        ],
+        "gen_ai.system_instructions": [
+          {
+            "content": "You are a trip concierge. Use the tools. When two tools are independent, call them at the same time. Answer in two sentences.\n\nYou are an agent. Your internal name is \"trip_concierge\".",
+            "type": "text"
+          }
+        ],
+        "gen_ai.tool.definitions": [
+          {
+            "name": "get_weather",
+            "description": "Returns the weekend weather forecast for a city.\n\nArgs:\n    city: City name, for example \"Lisbon\".",
+            "parameters": {
+              "properties": {
+                "city": {
+                  "title": "City",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "city"
+              ],
+              "title": "get_weatherParams",
+              "type": "object"
+            },
+            "type": "function"
+          },
+          {
+            "name": "get_events",
+            "description": "Returns events in a city this weekend, with ticket prices.\n\nArgs:\n    city: City name, for example \"Lisbon\".",
+            "parameters": {
+              "properties": {
+                "city": {
+                  "title": "City",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "city"
+              ],
+              "title": "get_eventsParams",
+              "type": "object"
+            },
+            "type": "function"
+          },
+          {
+            "name": "convert_currency",
+            "description": "Converts an amount between currencies.\n\nArgs:\n    amount: Amount to convert.\n    from_currency: ISO code, for example \"EUR\".\n    to_currency: ISO code, for example \"USD\".",
+            "parameters": {
+              "properties": {
+                "amount": {
+                  "title": "Amount",
+                  "type": "number"
+                },
+                "from_currency": {
+                  "title": "From Currency",
+                  "type": "string"
+                },
+                "to_currency": {
+                  "title": "To Currency",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "amount",
+                "from_currency",
+                "to_currency"
+              ],
+              "title": "convert_currencyParams",
+              "type": "object"
+            },
+            "type": "function"
+          }
+        ],
+        "gen_ai.output.messages": [
+          {
+            "role": "assistant",
+            "parts": [
+              {
+                "content": "Lisbon will have lovely weather this weekend, with sunny skies reaching 22\u00b0C on Saturday and light clouds at 20\u00b0C on Sunday. You can enjoy a Fado night in Alfama for 35 EUR while you're there.",
+                "type": "text"
+              }
+            ],
+            "finish_reason": "stop"
+          }
+        ]
+      },
+      "body": null
+    }
+  ]
+}
