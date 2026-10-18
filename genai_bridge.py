@@ -26,6 +26,7 @@ keys the console expects, so Session view lights up for LangGraph deployments to
 """
 
 from opentelemetry.sdk.trace import SpanProcessor
+from opentelemetry.trace import Status, StatusCode
 
 
 class GenAIBridgeSpanProcessor(SpanProcessor):
@@ -54,6 +55,10 @@ class GenAIBridgeSpanProcessor(SpanProcessor):
             a.setdefault("gen_ai.operation.name", "execute_tool")
             a.setdefault("gen_ai.tool.name", str(a.get("tool.name") or span.name))
         span._attributes = a
+        # OpenInference marks success as OK; OTel asks instrumentations to leave it UNSET,
+        # and the console counts any non-UNSET status as an error.
+        if span.status.status_code == StatusCode.OK:
+            span._status = Status(StatusCode.UNSET)
 
 
 def install_genai_bridge() -> None:

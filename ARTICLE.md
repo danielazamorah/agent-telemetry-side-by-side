@@ -309,7 +309,13 @@ class GenAIBridgeSpanProcessor(SpanProcessor):
         span._attributes = a
 ```
 
-Call `install_genai_bridge()` inside `model_builder`, and **Traces › Session view** in the Cloud console immediately populates for your LangGraph agent (`trip-langgraph-bridged`) too!
+Call `install_genai_bridge()` inside `model_builder`, and **Traces › Session view** in the Cloud console populates for your LangGraph agent (`trip-langgraph-bridged`) too!
+
+Here is the same LangGraph agent, redeployed as `trip-langgraph-bridged` with the bridge turned on. Same framework, same instrumentor, same model; only the dictionary changed:
+
+![Agent Platform: trip-langgraph-bridged, Traces › Session view. With the 15-line bridge, the same LangGraph agent now lists its sessions with model calls, tool calls, and token usage.](docs/article_c08d_langgraph_bridged_sessions.jpg)
+*Agent Platform: trip-langgraph-bridged, Traces › Session view. With the 15-line bridge, the same LangGraph agent now lists its sessions with model calls, tool calls, and token usage.*
+
 
 ### Fix 2: Normalize at rest in BigQuery (Zero-Copy Linked Dataset + SQL View)
 
