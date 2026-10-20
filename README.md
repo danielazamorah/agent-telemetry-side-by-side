@@ -22,7 +22,7 @@ export GOOGLE_CLOUD_LOCATION=global        # Gemini 3.x is served from the globa
 python capture.py adk                      # ADK, built-in OpenTelemetry
 python capture.py langgraph                # LangGraph + OpenInference instrumentor
 python capture.py adk-openinference        # bonus: the same ADK agent, OpenInference instrumentor
-python capture.py adk --model claude-sonnet-5-5      # same harness, another provider (Claude on Vertex AI)
+python capture.py adk --model claude-sonnet-5-5      # same harness, another provider (Claude)
 python build_app.py                        # app/index.html with the two samples embedded
 open app/index.html                        # or: python -m http.server -d app
 ```
@@ -127,7 +127,7 @@ What the real data shows:
 
 ## 4. Same harness, different model (Gemini 3.8 Flash vs Claude Sonnet 5.5)
 
-`python capture.py adk --model claude-sonnet-5-5` (and `langgraph`) runs the same agent on Claude through Vertex AI: ADK's `Claude` class, LangChain's `ChatAnthropicVertex`. Claude must be enabled in the project's Model Garden (check with a one-line call before blaming the code: a 404 means "not enabled here").
+`python capture.py adk --model claude-sonnet-5-5` (and `langgraph`) runs the same agent on Claude: ADK's `Claude` class, LangChain's `ChatAnthropicVertex`. Claude must be enabled in the project's Model Garden (check with a one-line call before blaming the code: a 404 means "not enabled here").
 
 **The harness decides the shape and the dictionary; the provider only changes values and optional keys.**
 

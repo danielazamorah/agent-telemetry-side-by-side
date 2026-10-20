@@ -17,8 +17,8 @@ ADK has OpenTelemetry built in: you do not add anything to get spans.
 They follow the OpenTelemetry GenAI semantic conventions (gen_ai.*).
 
 Same harness, any model: set MODEL to a Gemini model (default) or to a Claude
-model on Vertex AI (for example claude-sonnet-5-5). Claude goes through ADK's
-Claude class (Anthropic SDK on Vertex AI); Gemini goes through google-genai.
+model (for example claude-sonnet-5-5). Claude goes through ADK's
+Claude class (Anthropic SDK); Gemini goes through google-genai.
 """
 
 import os

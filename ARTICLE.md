@@ -203,15 +203,15 @@ If you build a cost or token burn-rate dashboard across agents and sum `output_t
 
 ### Experiment A: Same harness, different model (`gemini-3.8-flash` vs `claude-sonnet-5-5`)
 
-What happens if we keep the agent framework fixed and swap the model provider to **Claude Sonnet 5.5** on Vertex AI (`python capture.py adk --model claude-sonnet-5-5`)?
+What happens if we keep the agent framework fixed and swap the model provider to **Claude Sonnet 5.5** (`python capture.py adk --model claude-sonnet-5-5`)?
 
 The span tree and the telemetry dictionary **stay 100% identical**, because the harness and its instrumentor write the spans, not the model provider. What changes are the values inside:
 * **Token counts jump ~3x on the first call** (`276` -> `851` input tokens in ADK; `218` -> `755` in LangGraph) because each provider formats tool schemas and tokenizes text differently. Compare **cost**, not raw token counts, across providers.
 * **ADK does not set a model provider attribute** (`gen_ai.system` is always `"gcp.vertex.agent"`), so group multi-provider spend by `gen_ai.request.model`.
 * **In LangGraph, finish reasons change dialect:** Gemini reports `"STOP"`, while Claude reports `"tool_use"`.
 
-![Same harness (ADK), different model (Gemini 3.8 Flash vs Claude Sonnet 5.5 on Vertex AI).](docs/article_app_prov_adk_provider.jpg)
-*Same harness (ADK), different model (Gemini 3.8 Flash vs Claude Sonnet 5.5 on Vertex AI).*
+![Same harness (ADK), different model (Gemini 3.8 Flash vs Claude Sonnet 5.5).](docs/article_app_prov_adk_provider.jpg)
+*Same harness (ADK), different model (Gemini 3.8 Flash vs Claude Sonnet 5.5).*
 
 
 ![Same harness (LangGraph), different model: finish_reason shifts from STOP to tool_use.](docs/article_app_prov_lg_provider.jpg)

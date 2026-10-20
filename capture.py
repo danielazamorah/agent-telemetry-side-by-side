@@ -156,7 +156,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("agent", choices=["adk", "langgraph", "adk-openinference"])
     parser.add_argument("--question", choices=list(QUESTIONS), default="parallel")
-    parser.add_argument("--model", default=None, help="Gemini (default) or a Claude model on Vertex AI")
+    parser.add_argument("--model", default=None, help="Gemini (default) or a Claude model")
     args = parser.parse_args()
     if args.model:
         os.environ["MODEL"] = args.model

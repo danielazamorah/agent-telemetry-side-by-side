@@ -54,7 +54,8 @@ class GenAIBridgeSpanProcessor(SpanProcessor):
         elif kind == "TOOL":
             a.setdefault("gen_ai.operation.name", "execute_tool")
             a.setdefault("gen_ai.tool.name", str(a.get("tool.name") or span.name))
-        span._attributes = a
+        if getattr(span, "_attributes", None) is not None:
+            span._attributes.update(a)
         # OpenInference marks success as OK; OTel asks instrumentations to leave it UNSET,
         # and the console counts any non-UNSET status as an error.
         if span.status.status_code == StatusCode.OK:
@@ -69,4 +70,4 @@ def install_genai_bridge() -> None:
     multi = getattr(tp, "_active_span_processor", None)
     if multi is not None and hasattr(multi, "_span_processors"):
         if not any(type(p).__name__ == "GenAIBridgeSpanProcessor" for p in multi._span_processors):
-            multi._span_processors = (GenAIBridgeSpanProcessor(), *multi._span_processors)
+            multi._span_processors = [GenAIBridgeSpanProcessor(), *multi._span_processors]

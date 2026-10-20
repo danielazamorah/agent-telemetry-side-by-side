@@ -30,7 +30,7 @@ from tools import INSTRUCTION, convert_currency, get_events, get_weather
 MODEL = os.environ.get("MODEL", "gemini-3.8-flash")
 
 if MODEL.startswith("claude"):
-    # Same harness, different provider: Claude on Vertex AI through the Anthropic SDK.
+    # Same harness, different provider: Claude through the Anthropic SDK.
     from langchain_google_vertexai.model_garden import ChatAnthropicVertex
 
     llm = ChatAnthropicVertex(
